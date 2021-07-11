@@ -1,0 +1,29 @@
+{
+    "name": "rabble/content-bundle",
+    "type": "symfony-bundle",
+    "description": "A bundle for managing content within Rabble.",
+    "keywords": ["rabble", "admin", "content", "cms"],
+    "homepage": "https://rabble.rocks",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Rachel Snijders",
+            "email": "rainbowvision.bn@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "rabble/field-type-bundle": "*",
+        "doctrine/phpcr-bundle": "^2.1",
+        "ongr/elasticsearch-bundle": "^7.0",
+        "jackalope/jackalope-doctrine-dbal": "^1.4"
+    },
+    "autoload": {
+        "psr-4": { "Rabble\\ContentBundle\\": "src/ContentBundle" }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}

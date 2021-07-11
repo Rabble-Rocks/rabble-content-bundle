@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="rabble_content.form_ui.panel.tabbed" class="Rabble\AdminBundle\Ui\Panel\TabbedPanel">
+            <argument type="collection">
+                <argument key="tabs" type="collection" />
+                <argument key="template">@RabbleContent/Content/Panel/tabbedPanel.html.twig</argument>
+            </argument>
+        </service>
+        <service id="rabble_content.form_ui.tab.default" class="Rabble\ContentBundle\UI\Tab\ContentTab">
+            <argument type="service" id="translator.default" />
+            <argument type="collection">
+                <argument key="contentTemplate">@RabbleContent/Content/Tab/default.html.twig</argument>
+                <argument key="component">default</argument>
+                <argument key="label">content.tabs.default</argument>
+                <argument key="translation_domain">RabbleContentBundle</argument>
+            </argument>
+            <tag name="rabble_content.form_ui.tab" priority="256"/>
+        </service>
+    </services>
+</container>

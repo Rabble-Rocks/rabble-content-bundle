@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="rabble_content.controller.content.class">Rabble\ContentBundle\Controller\ContentController</parameter>
+    </parameters>
+    <services>
+        <service id="rabble_content.event_listener.default_field_types_subscriber" class="Rabble\ContentBundle\EventListener\DefaultFieldTypesSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="rabble_content.persistence.content_manager" class="Rabble\ContentBundle\Persistence\Manager\ContentManager">
+            <argument type="service" id="doctrine_phpcr.session" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="rabble_content.persistence.content_path_provider" />
+            <argument type="service" id="rabble_content.persistence.hydrator.content_document" />
+            <argument>%kernel.default_locale%</argument>
+        </service>
+
+        <service id="rabble_content.persistence.hydrator.content_document" class="Rabble\ContentBundle\Persistence\Hydrator\ContentDocumentHydrator">
+            <argument type="service" id="doctrine_phpcr.session"/>
+            <argument type="service" id="Rabble\ContentBundle\Content\Translator\ContentTranslator"/>
+            <argument type="service" id="rabble_content.content.transformer_chain"/>
+            <argument type="service" id="rabble_content.persistence.hydrator.reflection"/>
+            <argument>%kernel.default_locale%</argument>
+        </service>
+
+        <service id="rabble_content.persistence.hydrator.reflection" class="Rabble\ContentBundle\Persistence\Hydrator\ReflectionHydrator">
+            <argument type="service" id="annotation_reader"/>
+            <argument type="service" id="rabble_content.persistence.node_name_provider"/>
+        </service>
+
+        <service id="rabble_content.persistence.content_path_provider" class="Rabble\ContentBundle\Persistence\Provider\ContentPathProvider">
+            <argument type="service" id="rabble_content.persistence.node_name_provider"/>
+        </service>
+
+        <service id="rabble_content.persistence.node_name_provider" class="Rabble\ContentBundle\Persistence\Provider\NodeName\NodeNameProvider">
+            <argument type="service" id="annotation_reader"/>
+        </service>
+
+        <service id="Rabble\ContentBundle\Persistence\Manager\ContentManager" alias="rabble_content.persistence.content_manager"/>
+
+        <service id="Rabble\ContentBundle\Content\Translator\ContentTranslator">
+            <argument type="service" id="rabble_content.content_block_manager"/>
+            <argument type="service" id="doctrine_phpcr.session"/>
+            <argument type="service" id="rabble_content.content.transformer_chain"/>
+            <argument type="service" id="rabble_content.document_fields_provider" />
+        </service>
+
+        <service id="Rabble\ContentBundle\Content\EventListener\ContentIndexSubscriber">
+            <argument type="tagged_iterator" tag="rabble_content.indexer"/>
+            <tag name="kernel.event_subscriber" />
+        </service>
+
+        <service id="Rabble\ContentBundle\Content\EventListener\ContentImageSubscriber">
+            <argument type="service" id="rabble_content.document_fields_provider"/>
+            <argument type="service" id="rabble_content.content_block_manager"/>
+            <argument type="service" id="rabble_field_type.vich_uploader.property_mapping_factory"/>
+            <argument type="service" id="vich_uploader.storage"/>
+            <tag name="kernel.event_subscriber" />
+        </service>
+
+        <service id="rabble_content.content_indexer" class="Rabble\ContentBundle\Content\ContentIndexer">
+            <argument>Rabble\ContentBundle\Persistence\Document\ContentDocument</argument>
+            <argument type="service" id="elasticsearch_index.collection.content"/>
+            <argument type="service" id="rabble_content.content.structure_builder"/>
+            <argument type="service" id="rabble_content.persistence.content_manager"/>
+            <tag name="rabble_content.indexer"/>
+        </service>
+
+        <service id="rabble_content.content.structure_builder" class="Rabble\ContentBundle\Content\Structure\StructureBuilder">
+            <argument type="service" id="rabble_field_type.value_resolver_collection"/>
+            <argument type="service" id="rabble_content.document_fields_provider"/>
+        </service>
+
+        <service id="Rabble\ContentBundle\Content\Structure\StructureBuilder" alias="rabble_content.content.structure_builder" />
+
+        <service id="rabble_content.content.transformer_chain" class="Rabble\ContentBundle\Content\Transformer\ContentTransformerChain" />
+
+        <service id="Rabble\ContentBundle\Content\Transformer\ContentTransformerChain" alias="rabble_content.content.transformer_chain" />
+
+        <service id="Rabble\ContentBundle\Content\Transformer\PropertyTransformer">
+            <tag>rabble_content_transformer</tag>
+        </service>
+
+        <service id="Rabble\ContentBundle\Content\Transformer\ChildrenTransformer">
+            <argument type="service" id="doctrine_phpcr.session" />
+            <argument type="service" id="rabble_content.content.transformer_chain" />
+            <tag>rabble_content_transformer</tag>
+        </service>
+
+        <service id="rabble_content.document_fields_provider" class="Rabble\ContentBundle\DocumentFieldsProvider\ChainedDocumentFieldsProvider">
+            <argument type="service" id="monolog.logger" on-invalid="null"/>
+            <argument type="tagged_iterator" tag="rabble_content.document_fields_provider"/>
+        </service>
+
+        <service id="Rabble\ContentBundle\DocumentFieldsProvider\DocumentFieldsProviderInterface" alias="rabble_content.document_fields_provider" />
+
+        <service id="Rabble\ContentBundle\DocumentFieldsProvider\ChainedDocumentFieldsProvider" alias="rabble_content.document_fields_provider" />
+    </services>
+</container>

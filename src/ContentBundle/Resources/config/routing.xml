@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<routes xmlns="http://symfony.com/schema/routing"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://symfony.com/schema/routing
+        http://symfony.com/schema/routing/routing-1.0.xsd">
+    <route id="rabble_admin_content_index" controller="rabble_content.controller.content::indexAction" path="/{%rabble_admin.content_locale_key%}/content/index/{contentType}"/>
+    <route id="rabble_admin_content_create" controller="rabble_content.controller.content::createAction" path="/{%rabble_admin.content_locale_key%}/content/create/{contentType}"/>
+    <route id="rabble_admin_content_edit" controller="rabble_content.controller.content::editAction" path="/{%rabble_admin.content_locale_key%}/content/edit/{contentType}/{content}"/>
+    <route id="rabble_admin_content_delete" controller="rabble_content.controller.content::deleteAction" path="/{%rabble_admin.content_locale_key%}/content/delete/{contentType}/{content}"/>
+    <route id="rabble_admin_content_resolve_page" controller="rabble_content.action.page_resolver" path="/{%rabble_admin.content_locale_key%}/content/page/resolve"/>
+    <route id="rabble_admin_content_provide_slug" controller="rabble_content.action.slug_provider" path="/{%rabble_admin.content_locale_key%}/content/slug/provide"/>
+</routes>

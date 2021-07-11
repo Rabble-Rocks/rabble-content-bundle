@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Rabble\ContentBundle\Form\RabbleContentBlockCollectionType">
+            <argument type="service" id="rabble_content.content_block_manager" />
+            <tag>form.type</tag>
+        </service>
+        <service id="Rabble\ContentBundle\Form\ContentBlockContainerType">
+            <argument type="service" id="translator.default" />
+            <tag>form.type</tag>
+        </service>
+        <service id="Rabble\ContentBundle\Form\PageReferenceType">
+            <argument type="service" id="router" />
+            <argument type="service" id="rabble_content.persistence.content_manager" />
+            <tag>form.type</tag>
+        </service>
+    </services>
+</container>

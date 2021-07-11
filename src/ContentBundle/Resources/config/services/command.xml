@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Rabble\ContentBundle\Command\ContentIndexCommand">
+            <argument type="service" id="rabble_content.content_type_manager" />
+            <argument type="service" id="doctrine_phpcr.session" />
+            <argument type="service" id="Rabble\ContentBundle\Persistence\Manager\ContentManager" />
+            <argument type="service" id="rabble_content.content_indexer" />
+            <argument>%kernel.default_locale%</argument>
+            <tag name="console.command" />
+        </service>
+        <service id="Rabble\ContentBundle\Command\CreateIndexesCommand">
+            <argument type="service" id="elasticsearch_index.collection" />
+            <tag name="console.command" />
+        </service>
+        <service id="Rabble\ContentBundle\Command\RegisterNodeTypesCommand">
+            <argument type="service" id="doctrine_phpcr.session" />
+            <tag name="console.command" />
+        </service>
+    </services>
+</container>

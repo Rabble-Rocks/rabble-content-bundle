@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="rabble_field_type.content_block" class="Rabble\FieldTypeBundle\FieldType\Mapping\FieldTypeMapping">
+            <argument>content_block</argument>
+            <argument>Rabble\ContentBundle\FieldType\ContentBlockType</argument>
+            <tag>rabble_field_type_mapping</tag>
+        </service>
+        <service id="rabble_field_type.page_reference" class="Rabble\FieldTypeBundle\FieldType\Mapping\FieldTypeMapping">
+            <argument>page_reference</argument>
+            <argument>Rabble\ContentBundle\FieldType\PageReferenceType</argument>
+            <tag>rabble_field_type_mapping</tag>
+        </service>
+        <service id="rabble_field_type.value_resolver.content_block" class="Rabble\ContentBundle\ValueResolver\ContentBlockValueResolver">
+            <argument type="service" id="rabble_field_type.value_resolver_collection"/>
+            <argument type="service" id="rabble_content.content_block_manager"/>
+            <tag name="rabble_field_type.value_resolver"/>
+        </service>
+    </services>
+</container>

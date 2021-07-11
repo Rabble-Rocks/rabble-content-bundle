@@ -1,0 +1,9 @@
+{%- set contentType = app.request.attributes.get('contentType') -%}
+{%- set contentTabs = [] -%}
+{%- for tab in tabs -%}
+    {%- if not tab.contentType|default or tab.contentType is same as(contentType.name) -%}
+        {%- set contentTabs = contentTabs|merge([tab]) -%}
+    {%- endif -%}
+{%- endfor -%}
+{%- set tabs = contentTabs -%}
+{%- include '@RabbleAdmin/Ui/Panel/tabbedPanel.html.twig' -%}

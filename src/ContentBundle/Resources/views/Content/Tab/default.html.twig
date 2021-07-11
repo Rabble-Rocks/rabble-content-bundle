@@ -1,0 +1,5 @@
+{% for field in form.children|merge(form.properties.children) %}
+    {% if component is same as(field.vars.component|default) %}
+        {{ form_row(field) }}
+    {% endif %}
+{% endfor %}

@@ -1,0 +1,64 @@
+{% extends '@RabbleAdmin/Layout/base.html.twig' %}
+{% trans_default_domain 'RabbleContentBundle' %}
+{% block title %}{{ ('menu.content.' ~ action)|trans }}{% endblock %}
+{% set fields = [] %}
+{% for field in form.children|merge(form.properties.children) %}
+    {% if field.vars.component is defined %}
+        {% set component = field.vars.component %}
+        {% if component not in fields|keys %}
+            {% set fields = fields|merge({(component): []}) %}
+        {% endif %}
+        {% set fields = fields|merge({(component): fields[component]|merge({(field.vars.name): field})}) %}
+    {% endif %}
+{% endfor %}
+{% block page_content %}
+    {{ form_start(form) }}
+    <div class="row mb-2">
+        <div class="col-sm-4 col-md-4 col-lg-3 col-xl-2 mb-2">
+            <div class="row">
+                <div class="col-6 pr-0">
+                    <a href="{{ path('rabble_admin_content_index', { contentType: contentType.name }) }}"
+                       class="btn btn-secondary mr-2 btn-block h0"><i
+                                class="fa fa-arrow-circle-left"></i> {{ 'back'|trans }}</a>
+                </div>
+                <div class="col-6 px-sm-1">
+                    <button type="submit" class="btn btn-info btn-block"><i
+                                class="fa fa-check"></i> {{ 'form.submit'|trans }}</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-8 col-md-8 col-lg-9 col-xl-10">
+            {% include '@RabbleAdmin/flash_messages.html.twig' %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-{{ (fields['publishing']|default([])|length > 0 ? 8 : 12) }}">
+            {{ rabble_admin_ui(formPanel) }}
+        </div>
+        {% if fields['publishing']|default([])|length > 0 %}
+            <div id="publishing" class="col-md-4">
+                <div class="card border-primary">
+                    <a class="" href="#" data-toggle="collapse" data-target="#publishingCard">
+                        <div class="card-header bg-primary">
+                            <h5 class="mb-0 text-white">
+                                Publishing
+                            </h5>
+                        </div>
+                    </a>
+
+                    <div id="publishingCard" class="collapse show" data-parent="#publishing">
+                        <div class="card-body">
+                            {% for field in form.children|merge(form.properties.children) %}
+                                {% if 'publishing' is same as(field.vars.component|default) %}
+                                    {{ form_row(field) }}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+    {{ form_end(form) }}
+{% endblock %}

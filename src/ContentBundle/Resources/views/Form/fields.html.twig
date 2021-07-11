@@ -1,0 +1,64 @@
+{% macro content_block_label(contentBlock) %}
+    {%- if contentBlock.hasAttribute('label_' ~ app.request.locale) -%}
+        {%- set label = contentBlock.getAttribute('label_' ~ app.request.locale) -%}
+    {%- elseif contentBlock.hasAttribute('translation_domain') -%}
+        {%- set label = ('content_block.' ~ contentBlock.name)|trans([], contentBlock.getAttribute('translation_domain')) -%}
+    {%- else -%}
+        {%- set label = contentBlock.name -%}
+    {%- endif -%}
+    {{ label }}
+{% endmacro %}
+
+{% block rabble_content_block_collection_widget %}
+    {% for blockName, prototype in prototypes %}
+        {%- set attr = attr|merge({('data-prototype-' ~ blockName): form_row(prototype) }) -%}
+    {% endfor %}
+    {{- block('form_widget') -}}
+{% endblock %}
+
+{% block rabble_content_block_item_label %}
+    <span class="badge badge-secondary float-right py-1 px-2">{{ label }}</span>
+{% endblock %}
+
+{% block rabble_slug_widget %}
+    <div class="row">
+        <div class="col">
+            {{- block('form_widget') -}}
+        </div>
+        <div class="gutter-right">
+            <button class="btn btn-primary reload-slug" data-title=".rabble-title" data-resolver="{{ path('rabble_admin_content_provide_slug') }}" data-field="{{ id }}">
+                <i class="fa fa-refresh"></i>
+            </button>
+        </div>
+    </div>
+{% endblock %}
+
+{% block rabble_content_block_collection_row %}
+    <div class="rabble-content-blocks form-group" data-items="{{ form.children|length }}">
+        {{ form_label(form) }}
+        {{ form_widget(form) }}
+
+        {% set hidden = form.vars.max_size is not null and form.children|length >= form.vars.max_size %}
+        <div class="dropdown"{% if hidden %} style="display: none"{% endif %}>
+            {% if content_blocks|length > 1 %}
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-plus-circle"></i> Add
+                </button>
+                <ul class="dropdown-menu">
+                    {% for contentBlock in content_blocks %}
+                        <li>
+                            <a class="dropdown-item content-block-add" data-content-block="{{ contentBlock.name }}" href="#" data-prototype-name="{{ prototype_name }}">
+                                {{ _self.content_block_label(contentBlock) }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% elseif content_blocks|first %}
+                {% set contentBlock = content_blocks|first %}
+                <button class="btn btn-primary content-block-add" data-content-block="{{ contentBlock.name }}" data-prototype-name="{{ prototype_name }}" type="button">
+                    <i class="fa fa-plus-circle"></i> Add {{ _self.content_block_label(contentBlock) }}
+                </button>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
