@@ -5,11 +5,10 @@ namespace Rabble\ContentBundle\Persistence\Hydrator;
 use Doctrine\Common\Annotations\Reader;
 use Jackalope\Node;
 use Rabble\ContentBundle\Annotation\NodeProperty;
-use Rabble\ContentBundle\Exception\InvalidContentDocumentException;
 use Rabble\ContentBundle\Persistence\Document\AbstractPersistenceDocument;
 use Rabble\ContentBundle\Persistence\Provider\NodeName\NodeNameProviderInterface;
 
-class ReflectionHydrator implements DocumentHydratorInterface
+class AnnotationHydrator implements DocumentHydratorInterface
 {
     private const ILLEGAL_SET_PROPERTIES = ['jcr:uuid', 'path'];
 
@@ -24,11 +23,8 @@ class ReflectionHydrator implements DocumentHydratorInterface
         $this->nodeNameProvider = $nodeNameProvider;
     }
 
-    public function hydrateDocument(AbstractPersistenceDocument $document, ?Node $node = null): void
+    public function hydrateDocument(AbstractPersistenceDocument $document, Node $node): void
     {
-        if (null === $node) {
-            throw new InvalidContentDocumentException();
-        }
         $object = new \ReflectionObject($document);
         foreach ($object->getProperties() as $property) {
             $nodeProperty = $this->annotationReader->getPropertyAnnotation($property, NodeProperty::class);
@@ -49,16 +45,12 @@ class ReflectionHydrator implements DocumentHydratorInterface
             $nodeName = $node->getName();
         }
         $nodeNameProperty->setValue($document, $nodeName);
-
-        $property = $object->getProperty('dirty');
-        $property->setAccessible(true);
-        $property->setValue($document, false);
     }
 
     public function hydrateNode(AbstractPersistenceDocument $document, Node $node): void
     {
         if (null === $node) {
-            throw new InvalidContentDocumentException();
+            return;
         }
         $object = new \ReflectionObject($document);
         foreach ($object->getProperties() as $property) {

@@ -9,6 +9,7 @@ content:
   slug: Slug
   create: Add new
   delete_confirm: Are you sure you want to delete this content?
+  form.contains_errors: The form contains errors. Please check that all fields are filled in correctly.
 form:
   submit: Save
 back: Back

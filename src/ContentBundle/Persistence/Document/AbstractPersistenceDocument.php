@@ -6,6 +6,8 @@ use Rabble\ContentBundle\Annotation\NodeProperty;
 
 abstract class AbstractPersistenceDocument
 {
+    public const ROOT_NODE = '/';
+
     /**
      * @NodeProperty("jcr:uuid")
      */

@@ -11,6 +11,8 @@ use Rabble\ContentBundle\Annotation\NodeProperty;
  */
 class ContentDocument extends AbstractPersistenceDocument
 {
+    public const ROOT_NODE = '/content';
+
     /**
      * @NodeProperty("jcr:uuid")
      * @ES\Id

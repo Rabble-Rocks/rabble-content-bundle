@@ -10,26 +10,26 @@
         <service id="rabble_content.persistence.content_manager" class="Rabble\ContentBundle\Persistence\Manager\ContentManager">
             <argument type="service" id="doctrine_phpcr.session" />
             <argument type="service" id="event_dispatcher" />
-            <argument type="service" id="rabble_content.persistence.content_path_provider" />
-            <argument type="service" id="rabble_content.persistence.hydrator.content_document" />
+            <argument type="service" id="rabble_content.persistence.path_provider" />
+            <argument type="service" id="rabble_content.document_hydrator" />
             <argument>%kernel.default_locale%</argument>
         </service>
 
         <service id="rabble_content.persistence.hydrator.content_document" class="Rabble\ContentBundle\Persistence\Hydrator\ContentDocumentHydrator">
-            <argument type="service" id="doctrine_phpcr.session"/>
             <argument type="service" id="Rabble\ContentBundle\Content\Translator\ContentTranslator"/>
-            <argument type="service" id="rabble_content.persistence.hydrator.reflection"/>
-            <argument type="service" id="rabble_content.document_fields_provider"/>
             <argument>%kernel.default_locale%</argument>
+            <tag name="rabble_content.document_hydrator" />
         </service>
 
-        <service id="rabble_content.persistence.hydrator.reflection" class="Rabble\ContentBundle\Persistence\Hydrator\ReflectionHydrator">
+        <service id="rabble_content.persistence.hydrator.annotation" class="Rabble\ContentBundle\Persistence\Hydrator\AnnotationHydrator">
             <argument type="service" id="annotation_reader"/>
             <argument type="service" id="rabble_content.persistence.node_name_provider"/>
         </service>
 
-        <service id="rabble_content.persistence.content_path_provider" class="Rabble\ContentBundle\Persistence\Provider\ContentPathProvider">
+        <service id="rabble_content.persistence.path_provider" class="Rabble\ContentBundle\Persistence\Provider\PathProvider">
             <argument type="service" id="rabble_content.persistence.node_name_provider"/>
+            <argument type="service" id="slugger"/>
+            <argument type="service" id="doctrine_phpcr.session"/>
         </service>
 
         <service id="rabble_content.persistence.node_name_provider" class="Rabble\ContentBundle\Persistence\Provider\NodeName\NodeNameProvider">
@@ -77,8 +77,15 @@
             <argument type="tagged_iterator" tag="rabble_content.document_fields_provider"/>
         </service>
 
-        <service id="Rabble\ContentBundle\DocumentFieldsProvider\DocumentFieldsProviderInterface" alias="rabble_content.document_fields_provider" />
+        <service id="rabble_content.document_hydrator" class="Rabble\ContentBundle\Persistence\Hydrator\ChainedDocumentHydrator">
+            <argument type="service" id="rabble_content.persistence.hydrator.annotation"/>
+        </service>
 
+        <service id="Rabble\ContentBundle\Persistence\Hydrator\DocumentHydratorInterface" alias="rabble_content.document_fields_provider" />
+        <service id="Rabble\ContentBundle\Persistence\Hydrator\LocaleAwareDocumentHydratorInterface" alias="rabble_content.document_fields_provider" />
+        <service id="Rabble\ContentBundle\Persistence\Hydrator\ChainedDocumentHydrator" alias="rabble_content.document_fields_provider" />
+
+        <service id="Rabble\ContentBundle\DocumentFieldsProvider\DocumentFieldsProviderInterface" alias="rabble_content.document_fields_provider" />
         <service id="Rabble\ContentBundle\DocumentFieldsProvider\ChainedDocumentFieldsProvider" alias="rabble_content.document_fields_provider" />
     </services>
 </container>

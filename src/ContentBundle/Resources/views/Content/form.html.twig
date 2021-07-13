@@ -28,7 +28,13 @@
             </div>
         </div>
         <div class="col-sm-8 col-md-8 col-lg-9 col-xl-10">
-            {% include '@RabbleAdmin/flash_messages.html.twig' %}
+            {% if form.vars.submitted and not form.vars.valid %}
+                <div class="alert alert-danger alert-dismissible fade show">
+                    {{ 'content.form.contains_errors'|trans }}
+                </div>
+            {% else %}
+                {% include '@RabbleAdmin/flash_messages.html.twig' %}
+            {% endif %}
         </div>
     </div>
     <div class="row">

@@ -90,6 +90,7 @@ class ContentTranslator implements ContentTranslatorInterface
         if ($node->hasProperty($key)) {
             return $node->getPropertyValue($key);
         }
+
         return null;
     }
 
@@ -119,7 +120,7 @@ class ContentTranslator implements ContentTranslatorInterface
         $childNode = $node->hasNode($key) ? $node->getNode($key) : $node->addNode($key);
         /** @var Node $existingChildNode */
         foreach ($childNode->getNodes() as $existingChildNode) {
-            if (!isset($nodeValue[$key][$existingChildNode->getName()]) && is_numeric($existingChildNode->getName())) {
+            if (!isset($nodeValue[$existingChildNode->getName()]) && is_numeric($existingChildNode->getName())) {
                 $existingChildNode->remove();
             }
         }
