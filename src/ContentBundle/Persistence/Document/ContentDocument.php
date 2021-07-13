@@ -20,18 +20,18 @@ class ContentDocument extends AbstractPersistenceDocument
     /**
      * @ES\Property
      */
-    protected array $properties;
+    protected array $properties = [];
 
     /**
      * @NodeName.
      * @ES\Property(type="text", analyzer="case_insensitive", fields={"keyword"={"type"="keyword"}})
      */
-    private string $title;
+    protected string $title;
 
     /**
      * @NodeProperty("rabble:content_type")
      */
-    private string $contentType;
+    protected string $contentType;
 
     public static function getOwnProperties(): array
     {

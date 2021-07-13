@@ -60,9 +60,19 @@ abstract class AbstractPersistenceDocument
         return $this->path ?? null;
     }
 
+    public function setPath(string $path): void
+    {
+        $this->path = $path;
+    }
+
     public function getNodeName(): ?string
     {
         return $this->nodeName ?? null;
+    }
+
+    public function setNodeName(string $nodeName): void
+    {
+        $this->nodeName = $nodeName;
     }
 
     public function getDocumentClass(): string

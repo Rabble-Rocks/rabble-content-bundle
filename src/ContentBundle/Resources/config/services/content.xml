@@ -2,9 +2,6 @@
 <container xmlns="http://symfony.com/schema/dic/services"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
-    <parameters>
-        <parameter key="rabble_content.controller.content.class">Rabble\ContentBundle\Controller\ContentController</parameter>
-    </parameters>
     <services>
         <service id="rabble_content.event_listener.default_field_types_subscriber" class="Rabble\ContentBundle\EventListener\DefaultFieldTypesSubscriber">
             <tag name="kernel.event_subscriber"/>
@@ -21,8 +18,8 @@
         <service id="rabble_content.persistence.hydrator.content_document" class="Rabble\ContentBundle\Persistence\Hydrator\ContentDocumentHydrator">
             <argument type="service" id="doctrine_phpcr.session"/>
             <argument type="service" id="Rabble\ContentBundle\Content\Translator\ContentTranslator"/>
-            <argument type="service" id="rabble_content.content.transformer_chain"/>
             <argument type="service" id="rabble_content.persistence.hydrator.reflection"/>
+            <argument type="service" id="rabble_content.document_fields_provider"/>
             <argument>%kernel.default_locale%</argument>
         </service>
 
@@ -44,7 +41,6 @@
         <service id="Rabble\ContentBundle\Content\Translator\ContentTranslator">
             <argument type="service" id="rabble_content.content_block_manager"/>
             <argument type="service" id="doctrine_phpcr.session"/>
-            <argument type="service" id="rabble_content.content.transformer_chain"/>
             <argument type="service" id="rabble_content.document_fields_provider" />
         </service>
 
@@ -75,20 +71,6 @@
         </service>
 
         <service id="Rabble\ContentBundle\Content\Structure\StructureBuilder" alias="rabble_content.content.structure_builder" />
-
-        <service id="rabble_content.content.transformer_chain" class="Rabble\ContentBundle\Content\Transformer\ContentTransformerChain" />
-
-        <service id="Rabble\ContentBundle\Content\Transformer\ContentTransformerChain" alias="rabble_content.content.transformer_chain" />
-
-        <service id="Rabble\ContentBundle\Content\Transformer\PropertyTransformer">
-            <tag>rabble_content_transformer</tag>
-        </service>
-
-        <service id="Rabble\ContentBundle\Content\Transformer\ChildrenTransformer">
-            <argument type="service" id="doctrine_phpcr.session" />
-            <argument type="service" id="rabble_content.content.transformer_chain" />
-            <tag>rabble_content_transformer</tag>
-        </service>
 
         <service id="rabble_content.document_fields_provider" class="Rabble\ContentBundle\DocumentFieldsProvider\ChainedDocumentFieldsProvider">
             <argument type="service" id="monolog.logger" on-invalid="null"/>

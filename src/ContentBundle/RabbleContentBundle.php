@@ -2,7 +2,6 @@
 
 namespace Rabble\ContentBundle;
 
-use Rabble\ContentBundle\DependencyInjection\Compiler\ContentTransformerPass;
 use Rabble\ContentBundle\DependencyInjection\Compiler\ElasticsearchPass;
 use Rabble\ContentBundle\DependencyInjection\Compiler\UITabsPass;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
@@ -14,7 +13,6 @@ class RabbleContentBundle extends Bundle
     public function build(ContainerBuilder $container)
     {
         $container->addCompilerPass(new ElasticsearchPass(), PassConfig::TYPE_BEFORE_REMOVING);
-        $container->addCompilerPass(new ContentTransformerPass());
         $container->addCompilerPass(new UITabsPass());
     }
 }

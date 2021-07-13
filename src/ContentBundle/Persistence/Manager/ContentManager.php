@@ -6,6 +6,7 @@ use Jackalope\Factory;
 use Jackalope\Node;
 use Jackalope\Session;
 use PHPCR\RepositoryException;
+use PHPCR\Util\PathHelper;
 use PHPCR\Util\UUIDHelper;
 use Rabble\ContentBundle\Persistence\Document\AbstractPersistenceDocument;
 use Rabble\ContentBundle\Persistence\Event\AfterSaveEvent;
@@ -115,12 +116,20 @@ class ContentManager implements ContentManagerInterface
                 $this->eventDispatcher->dispatch($event = new InsertEvent($document));
                 if (!$event->isPrevented()) {
                     $path = $this->pathProvider->provide($document);
-                    $node = $this->addNode($path);
-                    $document->setDocumentClass(get_class($document));
-                    $document->setDefaultLocale($this->locale);
-                    $this->documentHydrator->hydrateDocument($document, $node);
-                    $this->documentHydrator->hydrateNode($document, $node);
-                    $inserted[] = $document;
+
+                    try {
+                        $existingNode = $this->session->getItem($path);
+                    } catch (RepositoryException $exception) {
+                        $existingNode = null;
+                    }
+                    if (null === $existingNode) {
+                        $node = $this->addNode($path);
+                        $document->setDocumentClass(get_class($document));
+                        $document->setDefaultLocale($this->locale);
+                        $this->documentHydrator->hydrateDocument($document, $node);
+                        $this->documentHydrator->hydrateNode($document, $node);
+                        $inserted[] = $document;
+                    }
                 }
 
                 continue;
@@ -149,6 +158,14 @@ class ContentManager implements ContentManagerInterface
                     continue;
                 }
                 $this->documentHydrator->hydrateNode($document, $node);
+                $parentPath = PathHelper::getParentPath($this->pathProvider->provide($document));
+                $path = ('/' === $parentPath ? '' : $parentPath).'/'.$document->getNodeName();
+                if ($path !== $document->getPath()) {
+                    try {
+                        $this->move($document, $path);
+                    } catch (RepositoryException $exception) {
+                    }
+                }
                 $updated[] = $document;
             }
         }
@@ -177,6 +194,12 @@ class ContentManager implements ContentManagerInterface
         $this->locale = $locale;
     }
 
+    public function refresh(AbstractPersistenceDocument $document): void
+    {
+        $node = $this->session->getItem($document->getPath());
+        $this->documentHydrator->hydrateDocument($document, $node);
+    }
+
     protected function addNode(string $path): Node
     {
         $current = $this->session->getRootNode();
@@ -197,6 +220,23 @@ class ContentManager implements ContentManagerInterface
         return $current;
     }
 
+    private function move(AbstractPersistenceDocument $document, $targetPath)
+    {
+        $parent = $this->session->getItem(PathHelper::getParentPath($targetPath));
+        $suffix = '';
+        $i = 1;
+        while (
+            $parent->hasNode(PathHelper::getNodeName($targetPath.$suffix))
+            || $parent->hasProperty(PathHelper::getNodeName($targetPath.$suffix))
+        ) {
+            $suffix = "-{$i}";
+            ++$i;
+        }
+        $this->session->move($document->getPath(), $targetPath.$suffix);
+        $document->setNodeName(PathHelper::getNodeName($targetPath.$suffix));
+        $document->setPath($targetPath.$suffix);
+    }
+
     private function addToIndex(AbstractPersistenceDocument $document): void
     {
         $this->documents[spl_object_hash($document)] = $document;
@@ -207,11 +247,5 @@ class ContentManager implements ContentManagerInterface
         if (isset($this->documents[spl_object_hash($document)])) {
             unset($this->documents[spl_object_hash($document)]);
         }
-    }
-
-    private function refresh(AbstractPersistenceDocument $document): void
-    {
-        $node = $this->session->getItem($document->getPath());
-        $this->documentHydrator->hydrateDocument($document, $node);
     }
 }
