@@ -7,9 +7,11 @@ use Rabble\AdminBundle\Ui\Panel\TabbedPanel;
 use Rabble\ContentBundle\ContentType\ContentType;
 use Rabble\ContentBundle\Form\ContentFormType;
 use Rabble\ContentBundle\Persistence\Document\ContentDocument;
+use Rabble\ContentBundle\Persistence\Document\StructuredDocumentInterface;
 use Rabble\ContentBundle\Persistence\Manager\ContentManager;
 use Rabble\ContentBundle\UI\Tab\ContentTab;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -37,6 +39,9 @@ class ContentController extends AbstractController
     {
         $this->contentManager->setLocale($request->attributes->get(RouterContextSubscriber::CONTENT_LOCALE_KEY));
         $content = new ContentDocument();
+        if (is_string($parent = $request->query->get('parent'))) {
+            $content->setParent($this->contentManager->find($parent));
+        }
         $content->setContentType($contentType->getName());
         $form = $this->createForm(
             ContentFormType::class,
@@ -107,7 +112,7 @@ class ContentController extends AbstractController
         ]);
     }
 
-    public function deleteAction(Request $request, ContentType $contentType, $content)
+    public function deleteAction(Request $request, ContentType $contentType, $content): RedirectResponse
     {
         $this->contentManager->setLocale($request->attributes->get(RouterContextSubscriber::CONTENT_LOCALE_KEY));
         $content = $this->contentManager->find($content);
@@ -116,6 +121,9 @@ class ContentController extends AbstractController
         }
         $this->contentManager->remove($content);
         $this->contentManager->flush();
+        if ($content instanceof StructuredDocumentInterface && null !== $content->getParent()) {
+            return $this->redirectToRoute('rabble_admin_content_structure_index');
+        }
 
         return $this->redirectToRoute('rabble_admin_content_index', ['contentType' => $contentType->getName()]);
     }

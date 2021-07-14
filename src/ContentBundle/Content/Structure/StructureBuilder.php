@@ -35,7 +35,19 @@ class StructureBuilder implements StructureBuilderInterface
         $properties = $content->getProperties();
         foreach ($content->getOwnProperties() as $ownProperty) {
             $getter = 'get'.ucfirst($ownProperty);
-            $properties[$ownProperty] = $content->{$getter}();
+            $value = $content->{$getter}();
+            if ($value instanceof AbstractPersistenceDocument) {
+                $value = $value->getUuid();
+            }
+            if (is_array($value)) {
+                foreach ($value as $i => $item) {
+                    if ($item instanceof AbstractPersistenceDocument) {
+                        $value[$i] = $item->getUuid();
+                    }
+                }
+            }
+            $properties[$ownProperty] = $value;
+            $structure[$ownProperty] = $value;
         }
         foreach ($this->fieldsProvider->getFields($content) as $field) {
             $value = $properties[$field->getName()] ?? null;

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="rabble_content.event_listener.default_field_types_subscriber" class="Rabble\ContentBundle\EventListener\DefaultFieldTypesSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="rabble_content.persistence.structured_content_path_provider" class="Rabble\ContentBundle\Persistence\Provider\StructuredContentPathProvider">
+            <argument type="service" id="rabble_content.persistence.node_name_provider"/>
+            <argument type="service" id="slugger"/>
+            <argument type="service" id="doctrine_phpcr.session"/>
+            <tag name="rabble_content.path_provider"/>
+        </service>
+
+        <service id="rabble_content.persistence.structured_content_hydrator" class="Rabble\ContentBundle\Persistence\Hydrator\StructuredContentHydrator">
+            <argument type="service" id="rabble_content.persistence.content_manager" />
+            <argument type="service" id="doctrine_phpcr.session" />
+            <tag name="rabble_content.document_hydrator" />
+        </service>
+    </services>
+</container>

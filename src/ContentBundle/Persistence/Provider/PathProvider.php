@@ -10,9 +10,9 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 
 class PathProvider implements PathProviderInterface
 {
-    private NodeNameProviderInterface $nodeNameProvider;
-    private SluggerInterface $slugger;
-    private Session $session;
+    protected NodeNameProviderInterface $nodeNameProvider;
+    protected SluggerInterface $slugger;
+    protected Session $session;
 
     public function __construct(
         NodeNameProviderInterface $nodeNameProvider,
@@ -27,6 +27,17 @@ class PathProvider implements PathProviderInterface
     public function provide(AbstractPersistenceDocument $document): string
     {
         $rootNode = $document::ROOT_NODE;
+
+        return $this->doProvide($document, $rootNode);
+    }
+
+    public function supports(AbstractPersistenceDocument $document): bool
+    {
+        return true;
+    }
+
+    protected function doProvide(AbstractPersistenceDocument $document, string $rootNode): string
+    {
         if ('/' === $rootNode) {
             $rootNode = '';
         }
@@ -39,7 +50,7 @@ class PathProvider implements PathProviderInterface
         return $path;
     }
 
-    private function hasCollision($path): bool
+    protected function hasCollision($path): bool
     {
         try {
             $this->session->getNode($path);

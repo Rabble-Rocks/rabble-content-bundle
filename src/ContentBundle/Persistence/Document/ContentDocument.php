@@ -9,7 +9,7 @@ use Rabble\ContentBundle\Annotation\NodeProperty;
 /**
  * @ES\Index()
  */
-class ContentDocument extends AbstractPersistenceDocument
+class ContentDocument extends StructuredDocument
 {
     public const ROOT_NODE = '/content';
 
@@ -37,7 +37,7 @@ class ContentDocument extends AbstractPersistenceDocument
 
     public static function getOwnProperties(): array
     {
-        return ['title', 'contentType'];
+        return ['title', 'contentType', 'parent', 'children'];
     }
 
     public function getTitle(): string
@@ -47,7 +47,7 @@ class ContentDocument extends AbstractPersistenceDocument
 
     public function setTitle(string $title): void
     {
-        $this->dirty = true;
+        $this->dirty = !isset($this->title) || $title !== $this->title;
         $this->title = $title;
     }
 
@@ -58,6 +58,7 @@ class ContentDocument extends AbstractPersistenceDocument
 
     public function setContentType(string $contentType): void
     {
+        $this->dirty = !isset($this->contentType) || $contentType !== $this->contentType;
         $this->contentType = $contentType;
     }
 }

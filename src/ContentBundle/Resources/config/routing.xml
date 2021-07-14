@@ -9,4 +9,7 @@
     <route id="rabble_admin_content_delete" controller="rabble_content.controller.content::deleteAction" path="/{%rabble_admin.content_locale_key%}/content/delete/{contentType}/{content}"/>
     <route id="rabble_admin_content_resolve_page" controller="rabble_content.action.page_resolver" path="/{%rabble_admin.content_locale_key%}/content/page/resolve"/>
     <route id="rabble_admin_content_provide_slug" controller="rabble_content.action.slug_provider" path="/{%rabble_admin.content_locale_key%}/content/slug/provide"/>
+
+    <route id="rabble_admin_content_structure_index" controller="rabble_content.controller.content_structure::indexAction" path="/{%rabble_admin.content_locale_key%}/content_structure/index"/>
+    <route id="rabble_admin_content_structure_set_parent" controller="rabble_content.controller.content_structure::setParentAction" path="/{%rabble_admin.content_locale_key%}/content_structure/set_parent"/>
 </routes>

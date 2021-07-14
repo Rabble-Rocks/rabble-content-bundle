@@ -10,8 +10,9 @@
         <service id="rabble_content.persistence.content_manager" class="Rabble\ContentBundle\Persistence\Manager\ContentManager">
             <argument type="service" id="doctrine_phpcr.session" />
             <argument type="service" id="event_dispatcher" />
-            <argument type="service" id="rabble_content.persistence.path_provider" />
+            <argument type="service" id="rabble_content.path_provider" />
             <argument type="service" id="rabble_content.document_hydrator" />
+            <argument type="service" id="rabble_content.proxy_configuration" />
             <argument>%kernel.default_locale%</argument>
         </service>
 
@@ -79,6 +80,10 @@
 
         <service id="rabble_content.document_hydrator" class="Rabble\ContentBundle\Persistence\Hydrator\ChainedDocumentHydrator">
             <argument type="service" id="rabble_content.persistence.hydrator.annotation"/>
+        </service>
+
+        <service id="rabble_content.path_provider" class="Rabble\ContentBundle\Persistence\Provider\PathProviderChain">
+            <argument type="service" id="rabble_content.persistence.path_provider"/>
         </service>
 
         <service id="Rabble\ContentBundle\Persistence\Hydrator\DocumentHydratorInterface" alias="rabble_content.document_fields_provider" />

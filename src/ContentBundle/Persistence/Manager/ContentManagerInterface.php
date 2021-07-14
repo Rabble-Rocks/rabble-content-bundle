@@ -17,5 +17,7 @@ interface ContentManagerInterface extends LocaleAwareInterface
 
     public function refresh(AbstractPersistenceDocument $document): void;
 
+    public function move(AbstractPersistenceDocument $document, $targetPath): void;
+
     public function flush(): void;
 }

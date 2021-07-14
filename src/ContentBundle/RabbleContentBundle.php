@@ -2,8 +2,8 @@
 
 namespace Rabble\ContentBundle;
 
-use Rabble\ContentBundle\DependencyInjection\Compiler\DocumentHydratorPass;
 use Rabble\ContentBundle\DependencyInjection\Compiler\ElasticsearchPass;
+use Rabble\ContentBundle\DependencyInjection\Compiler\PersistenceLayerPass;
 use Rabble\ContentBundle\DependencyInjection\Compiler\UITabsPass;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -15,6 +15,6 @@ class RabbleContentBundle extends Bundle
     {
         $container->addCompilerPass(new ElasticsearchPass(), PassConfig::TYPE_BEFORE_REMOVING);
         $container->addCompilerPass(new UITabsPass());
-        $container->addCompilerPass(new DocumentHydratorPass());
+        $container->addCompilerPass(new PersistenceLayerPass());
     }
 }

@@ -3,7 +3,9 @@
 namespace Rabble\ContentBundle\Datatable;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
+use ONGR\ElasticsearchDSL\Query\TermLevel\ExistsQuery;
 use ONGR\ElasticsearchDSL\Search;
 use Rabble\AdminBundle\EventListener\RouterContextSubscriber;
 use Rabble\ContentBundle\ContentType\ContentType;
@@ -102,5 +104,8 @@ class ContentDatatable extends AbstractGenericDatatable
         /** @var Search $search */
         $search = $event->getSubject();
         $search->addQuery(new MatchQuery('contentType', $contentType));
+        $search->addQuery((new BoolQuery([
+            'must_not' => new ExistsQuery('parent'),
+        ])));
     }
 }

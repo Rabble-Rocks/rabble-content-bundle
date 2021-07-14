@@ -8,6 +8,9 @@ use Jackalope\Session;
 use PHPCR\RepositoryException;
 use PHPCR\Util\PathHelper;
 use PHPCR\Util\UUIDHelper;
+use ProxyManager\Configuration;
+use ProxyManager\Factory\LazyLoadingGhostFactory;
+use ProxyManager\Proxy\GhostObjectInterface;
 use Rabble\ContentBundle\Persistence\Document\AbstractPersistenceDocument;
 use Rabble\ContentBundle\Persistence\Event\AfterSaveEvent;
 use Rabble\ContentBundle\Persistence\Event\InsertEvent;
@@ -36,12 +39,14 @@ class ContentManager implements ContentManagerInterface
     private string $locale;
     private DocumentHydratorInterface $documentHydrator;
     private PathProviderInterface $pathProvider;
+    private Configuration $proxyConfiguration;
 
     public function __construct(
         Session $session,
         EventDispatcherInterface $eventDispatcher,
         PathProviderInterface $pathProvider,
         DocumentHydratorInterface $documentHydrator,
+        Configuration $proxyConfiguration,
         string $defaultLocale
     ) {
         $this->session = $session;
@@ -49,6 +54,7 @@ class ContentManager implements ContentManagerInterface
         $this->factory = new Factory();
         $this->documentHydrator = $documentHydrator;
         $this->pathProvider = $pathProvider;
+        $this->proxyConfiguration = $proxyConfiguration;
         $this->locale = $defaultLocale;
     }
 
@@ -63,16 +69,14 @@ class ContentManager implements ContentManagerInterface
         } catch (RepositoryException $exception) {
             return null;
         }
-        if (!$node instanceof Node) {
+        if (!$node instanceof Node || !$node->hasProperty('rabble:class')) {
             return null;
         }
         $uuid = $node->getPropertyValue('jcr:uuid');
         if (isset($this->ids[$uuid], $this->documents[$this->ids[$uuid]])) {
             return $this->documents[$this->ids[$uuid]];
         }
-        $documentClass = $node->getPropertyValue('rabble:class');
-        $document = new $documentClass();
-        $this->documentHydrator->hydrateDocument($document, $node);
+        $document = $this->createProxy($node->getPropertyValue('rabble:class'), $node);
         $this->addToIndex($document);
         $this->ids[$uuid] = spl_object_hash($document);
         $this->eventDispatcher->dispatch(new PostFindEvent($document), 'rabble_content.post_find');
@@ -148,9 +152,7 @@ class ContentManager implements ContentManagerInterface
             }
             if ($document->isDirty()) {
                 $node = $this->session->getItem($document->getPath());
-                $documentClass = $node->getPropertyValue('rabble:class');
-                $oldDocument = new $documentClass();
-                $this->documentHydrator->hydrateDocument($oldDocument, $node);
+                $oldDocument = $this->createProxy($node->getPropertyValue('rabble:class'), $node);
                 $this->eventDispatcher->dispatch($event = new UpdateEvent($document, $oldDocument->getProperties(), $document->getProperties()));
                 if ($event->isPrevented()) {
                     $this->refresh($document);
@@ -200,6 +202,23 @@ class ContentManager implements ContentManagerInterface
         $this->documentHydrator->hydrateDocument($document, $node);
     }
 
+    public function move(AbstractPersistenceDocument $document, $targetPath): void
+    {
+        $parent = $this->session->getItem(PathHelper::getParentPath($targetPath));
+        $suffix = '';
+        $i = 1;
+        while (
+            $parent->hasNode(PathHelper::getNodeName($targetPath.$suffix))
+            || $parent->hasProperty(PathHelper::getNodeName($targetPath.$suffix))
+        ) {
+            $suffix = "-{$i}";
+            ++$i;
+        }
+        $this->session->move($document->getPath(), $targetPath.$suffix);
+        $document->setNodeName(PathHelper::getNodeName($targetPath.$suffix));
+        $document->setPath($targetPath.$suffix);
+    }
+
     protected function addNode(string $path): Node
     {
         $current = $this->session->getRootNode();
@@ -220,21 +239,21 @@ class ContentManager implements ContentManagerInterface
         return $current;
     }
 
-    private function move(AbstractPersistenceDocument $document, $targetPath)
+    private function createProxy(string $documentClass, Node $node): AbstractPersistenceDocument
     {
-        $parent = $this->session->getItem(PathHelper::getParentPath($targetPath));
-        $suffix = '';
-        $i = 1;
-        while (
-            $parent->hasNode(PathHelper::getNodeName($targetPath.$suffix))
-            || $parent->hasProperty(PathHelper::getNodeName($targetPath.$suffix))
-        ) {
-            $suffix = "-{$i}";
-            ++$i;
-        }
-        $this->session->move($document->getPath(), $targetPath.$suffix);
-        $document->setNodeName(PathHelper::getNodeName($targetPath.$suffix));
-        $document->setPath($targetPath.$suffix);
+        $factory = new LazyLoadingGhostFactory($this->proxyConfiguration);
+
+        return $factory->createProxy($documentClass, function (
+            GhostObjectInterface $ghostObject,
+            string $method,
+            array $parameters,
+            &$initializer
+        ) use ($node) {
+            $initializer = null;
+            $this->documentHydrator->hydrateDocument($ghostObject, $node);
+
+            return true;
+        });
     }
 
     private function addToIndex(AbstractPersistenceDocument $document): void

@@ -12,6 +12,7 @@
         <import resource="services/form.xml"/>
         <import resource="services/menu.xml"/>
         <import resource="services/param_converter.xml"/>
+        <import resource="services/structured_content.xml"/>
         <import resource="services/twig.xml"/>
         <import resource="services/ui.xml"/>
     </imports>

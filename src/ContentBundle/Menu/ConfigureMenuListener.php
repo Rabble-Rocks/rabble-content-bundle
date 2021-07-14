@@ -59,5 +59,15 @@ class ConfigureMenuListener
                 'extras' => $extras,
             ]);
         }
+
+        $menu->addChild('rabble_content_structure', [
+            'label' => 'menu.content_structure.index',
+            'route' => 'rabble_admin_content_structure_index',
+            'extras' => [
+                'translation_domain' => 'RabbleContentBundle',
+                'icon' => 'fa fa-code',
+                'icon_color' => 'purple-400',
+            ],
+        ]);
     }
 }

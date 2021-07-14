@@ -99,14 +99,17 @@ class ContentIndexer
 
     protected function getProperties(AbstractPersistenceDocument $document): array
     {
-        $properties = [
-            '_id' => $document->getUuid(),
-            'properties' => $this->structureBuilder->build($document),
-        ];
-        foreach ($document->getOwnProperties() as $property) {
-            $getter = 'get'.ucfirst($property);
-            $properties[$property] = $document->{$getter}();
+        $structureProperties = $this->structureBuilder->build($document);
+        $ownProperties = $document->getOwnProperties();
+        $properties = [];
+        foreach ($ownProperties as $ownProperty) {
+            if (isset($structureProperties[$ownProperty])) {
+                $properties[$ownProperty] = $structureProperties[$ownProperty];
+                unset($structureProperties[$ownProperty]);
+            }
         }
+        $properties['_id'] = $document->getUuid();
+        $properties['properties'] = $structureProperties;
 
         return $properties;
     }

@@ -2,6 +2,7 @@ menu:
   content.create: Create content
   content.edit: Edit content
   content.index: Content
+  content_structure.index: Content
 content:
   tabs:
     default: Page
@@ -10,6 +11,7 @@ content:
   create: Add new
   delete_confirm: Are you sure you want to delete this content?
   form.contains_errors: The form contains errors. Please check that all fields are filled in correctly.
+  no_content: There's nothing here at the moment.
 form:
   submit: Save
 back: Back

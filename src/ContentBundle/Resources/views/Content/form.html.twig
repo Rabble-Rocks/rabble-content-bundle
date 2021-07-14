@@ -17,7 +17,11 @@
         <div class="col-sm-4 col-md-4 col-lg-3 col-xl-2 mb-2">
             <div class="row">
                 <div class="col-6 pr-0">
-                    <a href="{{ path('rabble_admin_content_index', { contentType: contentType.name }) }}"
+                    {% set returnUrl = path('rabble_admin_content_index', { contentType: contentType.name }) %}
+                    {% if content.parent is not null %}
+                        {% set returnUrl = path('rabble_admin_content_structure_index')%}
+                    {% endif %}
+                    <a href="{{ returnUrl }}"
                        class="btn btn-secondary mr-2 btn-block h0"><i
                                 class="fa fa-arrow-circle-left"></i> {{ 'back'|trans }}</a>
                 </div>

@@ -2,6 +2,9 @@
 
 namespace Rabble\ContentBundle\DependencyInjection;
 
+use ProxyManager\Configuration as ProxyConfiguration;
+use ProxyManager\FileLocator\FileLocator as ProxyFileLocator;
+use ProxyManager\GeneratorStrategy\FileWriterGeneratorStrategy;
 use Rabble\ContentBundle\ContentBlock\ContentBlock;
 use Rabble\ContentBundle\ContentBlock\ContentBlockManager;
 use Rabble\ContentBundle\ContentBlock\ContentBlockManagerInterface;
@@ -18,6 +21,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\Filesystem\Filesystem;
 
 class RabbleContentExtension extends Extension
 {
@@ -35,6 +39,7 @@ class RabbleContentExtension extends Extension
         $this->registerContentTabs($config, $container);
         $this->registerFormTheme($container);
         $this->registerIndexable($container);
+        $this->registerProxyConfig($container);
     }
 
     private function registerContentTypeConfigurator(ContainerBuilder $container)
@@ -147,5 +152,20 @@ class RabbleContentExtension extends Extension
                 $container->setDefinition('rabble_content.form_ui.tab.custom.'.$id, $tabDefinition);
             }
         }
+    }
+
+    private function registerProxyConfig(ContainerBuilder $container)
+    {
+        $configDef = new Definition(ProxyConfiguration::class);
+        $proxyPath = $container->getParameter('kernel.cache_dir').'/rabble/ContentBundle/proxies';
+        if (!is_dir($proxyPath)) {
+            $filesystem = new Filesystem();
+            $filesystem->mkdir($proxyPath);
+        }
+        $fileLocatorDef = new Definition(ProxyFileLocator::class, [$proxyPath]);
+        $strategyDef = new Definition(FileWriterGeneratorStrategy::class, [$fileLocatorDef]);
+        $configDef->addMethodCall('setGeneratorStrategy', [$strategyDef]);
+        $configDef->addMethodCall('setProxiesTargetDir', [$proxyPath]);
+        $container->setDefinition('rabble_content.proxy_configuration', $configDef);
     }
 }

@@ -6,6 +6,7 @@ use Jackalope\Node;
 use Jackalope\Session;
 use Rabble\ContentBundle\Content\ContentIndexer;
 use Rabble\ContentBundle\ContentType\ContentTypeManagerInterface;
+use Rabble\ContentBundle\Persistence\Document\AbstractPersistenceDocument;
 use Rabble\ContentBundle\Persistence\Manager\ContentManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -51,11 +52,12 @@ class ContentIndexCommand extends Command
         if ($input->getOption('full-reset')) {
             $this->contentIndexer->reset();
         }
-        foreach ($this->contentTypeManager->all() as $contentType) {
-            $node = $this->session->getNode(sprintf('/content/%s', $contentType->getName()));
-            /** @var Node $content */
-            foreach ($node->getNodes() as $content) {
-                $this->contentIndexer->index($this->contentManager->find($content->getPath()));
+        $node = $this->session->getNode('/content');
+        /** @var Node $content */
+        foreach ($node->getNodes() as $content) {
+            $content = $this->contentManager->find($content->getPath());
+            if ($content instanceof AbstractPersistenceDocument) {
+                $this->contentIndexer->index($content);
             }
         }
         $this->contentIndexer->commit();

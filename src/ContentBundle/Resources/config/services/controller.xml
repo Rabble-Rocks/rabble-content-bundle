@@ -4,6 +4,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <parameters>
         <parameter key="rabble_content.controller.content.class">Rabble\ContentBundle\Controller\ContentController</parameter>
+        <parameter key="rabble_content.controller.content_structure.class">Rabble\ContentBundle\Controller\ContentStructureController</parameter>
         <parameter key="rabble_content.action.page_resolver.class">Rabble\ContentBundle\Controller\Action\PageResolverAction</parameter>
         <parameter key="rabble_content.action.slug_provider.class">Rabble\ContentBundle\Controller\Action\SlugProviderAction</parameter>
     </parameters>
@@ -19,6 +20,11 @@
         </service>
         <service id="rabble_content.action.slug_provider" class="%rabble_content.action.slug_provider.class%" autowire="true">
             <argument type="service" id="slugger" />
+            <tag name="controller.service_arguments"/>
+        </service>
+        <service id="rabble_content.controller.content_structure" class="%rabble_content.controller.content_structure.class%" autowire="true">
+            <argument type="service" id="rabble_content.persistence.content_manager" />
+            <argument type="service" id="rabble_content.content_type_manager" />
             <tag name="controller.service_arguments"/>
         </service>
     </services>
