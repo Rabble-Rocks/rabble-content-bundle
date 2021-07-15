@@ -40,6 +40,6 @@ class PageResolverAction
             ];
         }
 
-        return new JsonResponse($data);
+        return new JsonResponse(['results' => $data]);
     }
 }

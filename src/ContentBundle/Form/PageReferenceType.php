@@ -6,6 +6,7 @@ use PHPCR\Util\UUIDHelper;
 use Rabble\ContentBundle\Persistence\Manager\ContentManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
@@ -25,13 +26,12 @@ class PageReferenceType extends AbstractType
 
     public function getParent(): string
     {
-        return ChoiceType::class;
+        return TextType::class;
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'choices' => [],
             'attr' => [
                 'class' => 'autocomplete',
                 'data-resolver' => $this->router->generate('rabble_admin_content_resolve_page'),

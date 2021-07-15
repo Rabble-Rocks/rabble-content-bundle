@@ -6,7 +6,7 @@
         <div class="position-relative">
             {% include '@RabbleAdmin/Ui/Atom/sort-handle.html.twig' %}
             <div class="list-group-item bdrs-4 d-flex">
-                <div class="flex-grow-1 lh-2">
+                <div class="flex-grow-1 lh-2 ps-2 c-grey-700">
                     {{ document.title }}
                     <small class="c-grey-500">{{ document.properties.slug|default }}</small>
                 </div>
@@ -16,7 +16,7 @@
                             <i class="fa fa-pencil"></i>
                         </a>
                         <div class="dropdown">
-                            <button class="btn btn-info btn-sm bdrs-0 dropdown-toggle" type="button" data-toggle="dropdown">
+                            <button class="btn btn-info btn-sm bdrs-0 dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                 <i class="fa fa-plus-circle"></i>
                             </button>
                             <ul class="dropdown-menu">
@@ -65,7 +65,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="dropdown">
-                        <button class="btn btn-info btn-block dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-info btn-block dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa fa-plus-circle"></i> {{ 'content.create'|trans }}
                         </button>
                         <ul class="dropdown-menu">
