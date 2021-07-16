@@ -178,7 +178,8 @@ class ContentTranslator implements ContentTranslatorInterface
             $localizedData = [$field->getName() => []];
             /** @var AbstractFieldType[] $fields */
             $fields = $field->getOption($field->getFieldsOption());
-            foreach ($data[$field->getName()] ?? [] as $item) {
+            $items = $data[$field->getName()] ?? [];
+            foreach ($items as $item) {
                 $itemData = [];
                 foreach ($fields as $childField) {
                     foreach ($this->localizeDataForField($childField, $item, $locale) as $fieldName => $value) {
@@ -186,9 +187,9 @@ class ContentTranslator implements ContentTranslatorInterface
                     }
                 }
                 $localizedData[$field->getName()][] = $itemData;
-
-                return $localizedData;
             }
+
+            return $localizedData;
         }
         if ($field instanceof ContentBlockType) {
             $localizedData = [$field->getName() => []];
