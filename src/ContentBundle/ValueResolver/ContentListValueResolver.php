@@ -10,6 +10,7 @@ use ONGR\ElasticsearchDSL\Query\TermLevel\TermQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\TermsQuery;
 use Rabble\ContentBundle\Content\Structure\StructureBuilderInterface;
 use Rabble\ContentBundle\FieldType\ContentListType;
+use Rabble\ContentBundle\Persistence\Document\ContentDocument;
 use Rabble\ContentBundle\Persistence\Document\StructuredDocumentInterface;
 use Rabble\ContentBundle\Persistence\Manager\ContentManagerInterface;
 use Rabble\FieldTypeBundle\FieldType\FieldTypeInterface;
@@ -88,7 +89,12 @@ class ContentListValueResolver implements ValueResolverInterface
         $documents = array_merge($orderedDocuments, $documents);
         $data = [];
         foreach ($documents as $document) {
-            $data[] = $this->structureBuilder->build($document);
+            $structure = $this->structureBuilder->build($document);
+            $data[] = array_merge([
+                'id' => $document->getUuid(),
+                'contentType' => $document instanceof ContentDocument ? $document->getContentType() : null,
+                'title' => $document instanceof ContentDocument ? $document->getTitle() : null,
+            ], $structure);
         }
         $this->visited = [];
 
