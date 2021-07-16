@@ -29,9 +29,6 @@ class DefaultFieldTypesSubscriber implements EventSubscriberInterface
                     'message' => 'Please enter a title.',
                 ]),
             ],
-            'attr' => [
-                'class' => 'rabble-title',
-            ],
             'translation_domain' => 'RabbleContentBundle',
         ]));
         $event->addFieldType(new SlugType([

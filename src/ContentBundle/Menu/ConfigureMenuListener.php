@@ -24,6 +24,9 @@ class ConfigureMenuListener
     {
         $menu = $event->getRootItem();
         foreach ($this->contentTypeManager->all() as $contentType) {
+            if (!$contentType->hasAttribute('in_menu') || true !== $contentType->getAttribute('in_menu')) {
+                continue;
+            }
             $translationDomain = $contentType->hasAttribute(ContentType::TRANSLATION_DOMAIN_ATTRIBUTE) ? $contentType->getAttribute(ContentType::TRANSLATION_DOMAIN_ATTRIBUTE) : 'messages';
             $label = 'menu.content.'.$contentType->getName();
             if ($contentType->hasAttribute('label_'.$this->translator->getLocale())) {

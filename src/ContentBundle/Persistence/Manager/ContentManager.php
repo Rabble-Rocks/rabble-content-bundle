@@ -204,6 +204,9 @@ class ContentManager implements ContentManagerInterface
 
     public function move(AbstractPersistenceDocument $document, $targetPath): void
     {
+        if ($document->getPath() === $targetPath) {
+            return;
+        }
         $parent = $this->session->getItem(PathHelper::getParentPath($targetPath));
         $suffix = '';
         $i = 1;

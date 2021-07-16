@@ -25,11 +25,7 @@
         <div class="col" style="flex: calc(100% - 65px);">
             {{- block('form_widget') -}}
         </div>
-        <div class="col">
-            <button class="btn btn-primary reload-slug" data-title=".rabble-title" data-resolver="{{ path('rabble_admin_content_provide_slug') }}" data-field="{{ id }}">
-                <i class="fa fa-refresh"></i>
-            </button>
-        </div>
+        <div class="col reload-slug" data-content="{{ document.parent.uuid|default }}" data-title="{{ title_id|default }}" data-resolver="{{ path('rabble_admin_content_provide_slug') }}" data-field="{{ id }}"></div>
     </div>
 {% endblock %}
 

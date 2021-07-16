@@ -40,19 +40,4 @@ export default (function () {
         }
         $(this).closest('.collection-item').remove();
     });
-
-    $(document).on('click', '.reload-slug', function (e) {
-        e.preventDefault();
-        let title = $($(this).data('title')).val();
-        let field = $('#' + $(this).data('field'));
-        let icon = $(this).find('.fa');
-        icon.addClass('fa-spin');
-        $.ajax({
-            'url': $(this).data('resolver') + '?title=' + title,
-            'success': function (result) {
-                field.val(result.value);
-                icon.removeClass('fa-spin');
-            }
-        });
-    });
 });

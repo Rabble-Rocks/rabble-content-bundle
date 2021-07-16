@@ -90,7 +90,7 @@ class StructuredContentHydrator implements DocumentHydratorInterface
             }
         }
         if (Node::STATE_NEW !== $node->getState()) {
-            $this->contentManager->move($document, $parent->getPath());
+            $this->contentManager->move($document, $parent->getPath().'/'.$document->getNodeName());
         }
         if ($parent instanceof StructuredDocumentInterface) {
             /** @var StructuredDocumentInterface[] $children */
