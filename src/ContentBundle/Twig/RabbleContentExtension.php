@@ -44,11 +44,7 @@ class RabbleContentExtension extends AbstractExtension
         if (null === $content) {
             return null;
         }
-        $structure = $this->structureBuilder->build($content);
-        return array_merge([
-            'id' => $content->getUuid(),
-            'contentType' => $source['contentType'] ?? null,
-            'title' => $source['title'] ?? null,
-        ], $structure);
+
+        return $this->structureBuilder->build($content, StructureBuilder::TARGET_WEBSITE);
     }
 }

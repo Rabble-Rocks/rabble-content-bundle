@@ -26,7 +26,7 @@ class ContentBlockValueResolver implements ValueResolverInterface
      * @param mixed                               $value
      * @param ContentBlockType|FieldTypeInterface $fieldType
      */
-    public function resolve($value, FieldTypeInterface $fieldType): array
+    public function resolve($value, FieldTypeInterface $fieldType, ?string $target = null): array
     {
         Assert::isArray($value);
         $data = [];

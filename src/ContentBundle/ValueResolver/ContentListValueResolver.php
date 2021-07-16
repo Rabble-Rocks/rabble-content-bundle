@@ -8,6 +8,7 @@ use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\TermQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\TermsQuery;
+use Rabble\ContentBundle\Content\Structure\StructureBuilder;
 use Rabble\ContentBundle\Content\Structure\StructureBuilderInterface;
 use Rabble\ContentBundle\FieldType\ContentListType;
 use Rabble\ContentBundle\Persistence\Document\ContentDocument;
@@ -39,8 +40,11 @@ class ContentListValueResolver implements ValueResolverInterface
      * @param mixed                              $value
      * @param ContentListType|FieldTypeInterface $fieldType
      */
-    public function resolve($value, FieldTypeInterface $fieldType): array
+    public function resolve($value, FieldTypeInterface $fieldType, ?string $target = null): array
     {
+        if (StructureBuilder::TARGET_ELASTICSEARCH === $target) {
+            return [];
+        }
         Assert::nullOrIsArray($value);
         if (null === $value) {
             return [];
@@ -89,7 +93,7 @@ class ContentListValueResolver implements ValueResolverInterface
         $documents = array_merge($orderedDocuments, $documents);
         $data = [];
         foreach ($documents as $document) {
-            $structure = $this->structureBuilder->build($document);
+            $structure = $this->structureBuilder->build($document, $target);
             $data[] = array_merge([
                 'id' => $document->getUuid(),
                 'contentType' => $document instanceof ContentDocument ? $document->getContentType() : null,

@@ -99,7 +99,7 @@ class ContentIndexer
 
     protected function getProperties(AbstractPersistenceDocument $document): array
     {
-        $structureProperties = $this->structureBuilder->build($document);
+        $structureProperties = $this->structureBuilder->build($document, StructureBuilder::TARGET_ELASTICSEARCH);
         $ownProperties = $document->getOwnProperties();
         $properties = [];
         foreach ($ownProperties as $ownProperty) {
