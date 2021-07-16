@@ -13,9 +13,20 @@
             <argument>Rabble\ContentBundle\FieldType\PageReferenceType</argument>
             <tag>rabble_field_type_mapping</tag>
         </service>
+        <service id="rabble_field_type.content_list" class="Rabble\FieldTypeBundle\FieldType\Mapping\FieldTypeMapping">
+            <argument>content_list</argument>
+            <argument>Rabble\ContentBundle\FieldType\ContentListType</argument>
+            <tag>rabble_field_type_mapping</tag>
+        </service>
         <service id="rabble_field_type.value_resolver.content_block" class="Rabble\ContentBundle\ValueResolver\ContentBlockValueResolver">
             <argument type="service" id="rabble_field_type.value_resolver_collection"/>
             <argument type="service" id="rabble_content.content_block_manager"/>
+            <tag name="rabble_field_type.value_resolver"/>
+        </service>
+        <service id="rabble_field_type.value_resolver.content_list" class="Rabble\ContentBundle\ValueResolver\ContentListValueResolver">
+            <argument type="service" id="rabble_content.content.structure_builder"/>
+            <argument type="service" id="elasticsearch_index.collection.content"/>
+            <argument type="service" id="rabble_content.persistence.content_manager"/>
             <tag name="rabble_field_type.value_resolver"/>
         </service>
     </services>

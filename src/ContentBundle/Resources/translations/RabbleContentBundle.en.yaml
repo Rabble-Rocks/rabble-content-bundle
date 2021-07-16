@@ -14,6 +14,8 @@ content:
   no_content: There's nothing here at the moment.
 form:
   submit: Save
+  content_type: Content type
+  children: Children of this content
 back: Back
 
 table:

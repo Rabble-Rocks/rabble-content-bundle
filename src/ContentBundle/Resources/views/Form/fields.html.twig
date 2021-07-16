@@ -29,6 +29,17 @@
     </div>
 {% endblock %}
 
+{% block content_list_configuration_widget %}
+    {% set form_widget = block('form_widget') %}
+    <div class="content-list-configure"
+         data-form="{{ form_widget }}"
+         data-label="{{ label }}"
+         data-id="{{ id }}"
+         data-save="Save"
+         data-configure="Configure"
+    ></div>
+{% endblock %}
+
 {% block rabble_content_block_collection_row %}
     <div class="rabble-content-blocks form-group" data-items="{{ form.children|length }}">
         {{ form_label(form) }}

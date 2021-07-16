@@ -2,6 +2,7 @@
 
 namespace Rabble\ContentBundle\Controller;
 
+use Rabble\AdminBundle\EventListener\RouterContextSubscriber;
 use Rabble\ContentBundle\ContentType\ContentTypeManager;
 use Rabble\ContentBundle\Persistence\Document\StructuredDocument;
 use Rabble\ContentBundle\Persistence\Document\StructuredDocumentInterface;
@@ -22,8 +23,9 @@ class ContentStructureController extends AbstractController
         $this->contentTypeManager = $contentTypeManager;
     }
 
-    public function indexAction(): Response
+    public function indexAction(Request $request): Response
     {
+        $this->contentManager->setLocale($request->attributes->get(RouterContextSubscriber::CONTENT_LOCALE_KEY));
         /** @var StructuredDocument $rootNode */
         $rootNode = $this->contentManager->find(StructuredDocument::ROOT_NODE);
         if (null === $rootNode) {

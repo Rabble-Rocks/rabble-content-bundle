@@ -16,5 +16,10 @@
             <argument type="service" id="rabble_content.persistence.content_manager" />
             <tag>form.type</tag>
         </service>
+        <service id="Rabble\ContentBundle\Form\ContentListConfigurationType">
+            <argument type="service" id="rabble_content.content_type_manager" />
+            <argument type="service" id="translator.default" />
+            <tag>form.type</tag>
+        </service>
     </services>
 </container>
