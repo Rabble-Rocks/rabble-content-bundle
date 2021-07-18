@@ -56,7 +56,7 @@ abstract class AbstractPersistenceDocument
 
     public function setPath(string $path): void
     {
-        $this->dirty = !isset($this->path) || $path !== $this->path;
+        $this->dirty = $this->dirty || !isset($this->path) || $path !== $this->path;
         $this->path = $path;
     }
 
@@ -67,7 +67,7 @@ abstract class AbstractPersistenceDocument
 
     public function setNodeName(string $nodeName): void
     {
-        $this->dirty = !isset($this->nodeName) || $nodeName !== $this->path;
+        $this->dirty = $this->dirty || !isset($this->nodeName) || $nodeName !== $this->path;
         $this->nodeName = $nodeName;
     }
 
@@ -78,7 +78,7 @@ abstract class AbstractPersistenceDocument
 
     public function setDocumentClass(string $documentClass): void
     {
-        $this->dirty = !isset($this->documentClass) || $documentClass !== $this->documentClass;
+        $this->dirty = $this->dirty || !isset($this->documentClass) || $documentClass !== $this->documentClass;
         $this->documentClass = $documentClass;
     }
 
@@ -89,7 +89,7 @@ abstract class AbstractPersistenceDocument
 
     public function setDefaultLocale(string $defaultLocale): void
     {
-        $this->dirty = !isset($this->defaultLocale) || $defaultLocale !== $this->defaultLocale;
+        $this->dirty = $this->dirty || !isset($this->defaultLocale) || $defaultLocale !== $this->defaultLocale;
         $this->defaultLocale = $defaultLocale;
     }
 
@@ -100,7 +100,7 @@ abstract class AbstractPersistenceDocument
 
     public function setProperties(array $properties): void
     {
-        $this->dirty = $properties !== $this->properties;
+        $this->dirty = $this->dirty || $properties !== $this->properties;
         $this->properties = $properties;
     }
 
@@ -111,7 +111,7 @@ abstract class AbstractPersistenceDocument
 
     public function setProperty($property, $value): void
     {
-        $this->dirty = !isset($this->properties[$property]) || $this->properties[$property] !== $value;
+        $this->dirty = $this->dirty || !isset($this->properties[$property]) || $this->properties[$property] !== $value;
         $this->properties[$property] = $value;
     }
 

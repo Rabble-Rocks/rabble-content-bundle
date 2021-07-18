@@ -37,7 +37,7 @@ class StructuredDocument extends AbstractPersistenceDocument implements Structur
 
     public function setParent(?AbstractPersistenceDocument $parent): void
     {
-        $this->dirty = !isset($this->parent) || $parent !== $this->parent;
+        $this->dirty = $this->dirty || !isset($this->parent) || $parent !== $this->parent;
         $this->parent = $parent;
     }
 
@@ -54,7 +54,7 @@ class StructuredDocument extends AbstractPersistenceDocument implements Structur
      */
     public function setChildren(array $children): void
     {
-        $this->dirty = $children !== $this->children;
+        $this->dirty = $this->dirty || $children !== $this->children;
         $this->children = $children;
     }
 
@@ -65,7 +65,7 @@ class StructuredDocument extends AbstractPersistenceDocument implements Structur
 
     public function setOrder(int $order): void
     {
-        $this->dirty = $order !== $this->order;
+        $this->dirty = $this->dirty || $order !== $this->order;
         $this->order = $order;
     }
 }

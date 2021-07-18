@@ -11,5 +11,6 @@
     <route id="rabble_admin_content_provide_slug" controller="rabble_content.action.slug_provider" path="/{%rabble_admin.content_locale_key%}/content/slug/provide"/>
 
     <route id="rabble_admin_content_structure_index" controller="rabble_content.controller.content_structure::indexAction" path="/{%rabble_admin.content_locale_key%}/content_structure/index"/>
+    <route id="rabble_admin_content_structure_get_tree_node" controller="rabble_content.controller.content_structure::getTreeNode" path="/{%rabble_admin.content_locale_key%}/content_structure/get_tree_node/{parent}"/>
     <route id="rabble_admin_content_structure_set_parent" controller="rabble_content.controller.content_structure::setParentAction" path="/{%rabble_admin.content_locale_key%}/content_structure/set_parent"/>
 </routes>

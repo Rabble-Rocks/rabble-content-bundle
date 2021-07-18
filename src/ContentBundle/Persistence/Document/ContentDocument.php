@@ -47,7 +47,7 @@ class ContentDocument extends StructuredDocument
 
     public function setTitle(string $title): void
     {
-        $this->dirty = !isset($this->title) || $title !== $this->title;
+        $this->dirty = $this->dirty || !isset($this->title) || $title !== $this->title;
         $this->title = $title;
     }
 
@@ -58,7 +58,7 @@ class ContentDocument extends StructuredDocument
 
     public function setContentType(string $contentType): void
     {
-        $this->dirty = !isset($this->contentType) || $contentType !== $this->contentType;
+        $this->dirty = $this->dirty || !isset($this->contentType) || $contentType !== $this->contentType;
         $this->contentType = $contentType;
     }
 }

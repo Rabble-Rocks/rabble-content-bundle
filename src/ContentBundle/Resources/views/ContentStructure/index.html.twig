@@ -1,48 +1,6 @@
 {% extends '@RabbleAdmin/Layout/base.html.twig' %}
 {% trans_default_domain 'RabbleContentBundle' %}
 {% block title %}{{ 'menu.content.index'|trans }}{% endblock %}
-{% macro structure_element(document, contentTypes) %}
-    <div class="nested" data-callback="setParent">
-        <div class="position-relative">
-            {% include '@RabbleAdmin/Ui/Atom/sort-handle.html.twig' %}
-            <div class="list-group-item bdrs-4 d-flex">
-                <div class="flex-grow-1 lh-2 ps-2 c-grey-700">
-                    {{ document.title }}
-                    <small class="c-grey-500">{{ document.properties.slug|default }}</small>
-                </div>
-                <div class="flex-column">
-                    <div class="btn-group float-right" role="group">
-                        <a href="{{ path('rabble_admin_content_edit', {contentType: document.contentType, content: document.uuid}) }}" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="top" title="Edit">
-                            <i class="fa fa-pencil"></i>
-                        </a>
-                        <div class="dropdown">
-                            <button class="btn btn-info btn-sm bdrs-0 dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                <i class="fa fa-plus-circle"></i>
-                            </button>
-                            <ul class="dropdown-menu">
-                                {% for contentType in contentTypes %}
-                                    <li>
-                                        <a class="dropdown-item" href="{{ path('rabble_admin_content_create', {contentType: contentType.name, parent: document.uuid}) }}">
-                                            {{ _self.content_type_label(contentType) }}
-                                        </a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        <a href="{{ path('rabble_admin_content_delete', {contentType: document.contentType, content: document.uuid}) }}" onclick="return confirm('{{ 'content.delete_confirm'|trans }}');" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="top" title="Delete">
-                            <i class="fa fa-times"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="list-group sortable" data-group="list-group" data-id="{{ document.uuid }}" data-url="{{ path('rabble_admin_content_structure_set_parent') }}">
-            {% for child in document.children %}
-                {{ _self.structure_element(child, contentTypes) }}
-            {% endfor %}
-        </div>
-    </div>
-{% endmacro %}
 {% macro content_type_label(contentType) %}
     {%- set translationDomain = 'messages' -%}
     {%- if contentType.hasAttribute('translation_domain') -%}
@@ -91,13 +49,16 @@
     <div class="row">
         <div class="col-md-12">
             <div class="bgc-white bd bdrs-3 p-20 mB-20 w-100p">
-                <div class="list-group sortable" data-group="list-group" data-id="{{ rootNode.uuid }}" data-url="{{ path('rabble_admin_content_structure_set_parent') }}">
-                    {% for child in rootNode.children %}
-                        {{ _self.structure_element(child, contentTypes) }}
-                    {% else %}
-                        <h1 class="c-grey-300 text-center">{{ 'content.no_content'|trans }}</h1>
-                    {% endfor %}
-                </div>
+                {% set contentTypeData = {} %}
+                {% for contentType in contentTypes %}
+                    {% set label %}{{ _self.content_type_label(contentType) }}{% endset %}
+                    {% set contentTypeData = contentTypeData|merge({(contentType.name): label}) %}
+                {% endfor %}
+                <div class="content-structure"
+                     data-tree="{{ treeData|json_encode }}"
+                     data-content-types="{{ contentTypeData|json_encode }}"
+                     data-move-url="{{ path('rabble_admin_content_structure_set_parent') }}"
+                     data-root-id="{{ rootNode.uuid }}"></div>
             </div>
         </div>
     </div>
