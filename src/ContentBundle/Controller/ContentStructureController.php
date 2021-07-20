@@ -35,7 +35,7 @@ class ContentStructureController extends AbstractController
             $this->contentManager->persist($rootNode);
             $this->contentManager->flush();
         }
-        $treeData = $this->buildTreeData($rootNode);
+        $treeData = $this->buildTreeData($rootNode, 0, 1);
 
         return $this->render('@RabbleContent/ContentStructure/index.html.twig', [
             'rootNode' => $rootNode,
@@ -50,7 +50,7 @@ class ContentStructureController extends AbstractController
         if (!$parent instanceof ContentDocument) {
             throw new NotFoundHttpException();
         }
-        return new JsonResponse($this->buildTreeData($parent));
+        return new JsonResponse($this->buildTreeData($parent, 0, 1));
     }
 
     public function setParentAction(Request $request): Response
@@ -79,7 +79,7 @@ class ContentStructureController extends AbstractController
         return new Response($item->getProperty('slug'));
     }
 
-    private function buildTreeData(StructuredDocument $document, bool $recursive = false): array
+    private function buildTreeData(StructuredDocument $document, int $depth, int $maxDepth): array
     {
         $data = [];
         foreach ($document->getChildren() as $child) {
@@ -97,10 +97,11 @@ class ContentStructureController extends AbstractController
                 'delete' => $this->generateUrl('rabble_admin_content_delete', ['contentType' => $child->getContentType(), 'content' => $child->getUuid()]),
                 'add' => $addUrls,
                 'title' => $child->getTitle(),
+                'expanded' => $depth < $maxDepth,
                 'subtitle' => $child->hasProperty('slug') ? $child->getProperty('slug') : '',
             ];
             if ([] !== $child->getChildren()) {
-                $item['children'] = $recursive ? $this->buildTreeData($child) : true;
+                $item['children'] = $depth < $maxDepth ? $this->buildTreeData($child, $depth + 1, $maxDepth) : true;
             }
             $data[] = $item;
         }

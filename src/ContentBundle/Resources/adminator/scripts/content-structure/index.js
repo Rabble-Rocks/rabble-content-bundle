@@ -29,6 +29,8 @@ class ContentStructure extends Component {
                             }
                         );
                 };
+            } else if(Array.isArray(item.children)) {
+                item.children = this.formatTreeData(item.children);
             }
             treeData.push(item)
         }
