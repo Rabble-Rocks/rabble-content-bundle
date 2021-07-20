@@ -8,8 +8,14 @@ interface StructuredDocumentInterface
 
     public function setParent(?AbstractPersistenceDocument $parent): void;
 
+    /**
+     * @return AbstractPersistenceDocument[]
+     */
     public function getChildren(): array;
 
+    /**
+     * @param AbstractPersistenceDocument[] $children
+     */
     public function setChildren(array $children): void;
 
     public function getOrder(): int;

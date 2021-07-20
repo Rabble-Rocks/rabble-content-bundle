@@ -3,7 +3,10 @@
 namespace Rabble\ContentBundle\Content\EventListener;
 
 use Rabble\ContentBundle\Content\ContentIndexer;
+use Rabble\ContentBundle\Persistence\Document\AbstractPersistenceDocument;
+use Rabble\ContentBundle\Persistence\Document\StructuredDocumentInterface;
 use Rabble\ContentBundle\Persistence\Event\AfterSaveEvent;
+use Rabble\ContentBundle\Persistence\Event\UpdateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ContentIndexSubscriber implements EventSubscriberInterface
@@ -23,7 +26,19 @@ class ContentIndexSubscriber implements EventSubscriberInterface
     {
         return [
             AfterSaveEvent::class => ['afterSave', -128],
+            UpdateEvent::class => ['onUpdate', -128],
         ];
+    }
+
+    public function onUpdate(UpdateEvent $event): void
+    {
+        $old = $event->getOldProperties();
+        $new = $event->getNewProperties();
+        $document = $event->getDocument();
+        if (!isset($old['slug']) || !isset($new['slug']) || $old['slug'] === $new['slug'] || !$document instanceof StructuredDocumentInterface) {
+            return;
+        }
+        $this->slugUpdated($document, $old['slug'], $new['slug']);
     }
 
     public function afterSave(AfterSaveEvent $event): void
@@ -57,6 +72,27 @@ class ContentIndexSubscriber implements EventSubscriberInterface
                 continue;
             }
             $indexer->commit(false);
+        }
+    }
+
+    private function slugUpdated(AbstractPersistenceDocument $document, $oldSlug, $newSlug)
+    {
+        if (!$document instanceof StructuredDocumentInterface) {
+            return;
+        }
+
+        foreach ($document->getChildren() as $child) {
+            if (!$child->hasProperty('slug')) {
+                continue;
+            }
+            $slug = $child->getProperty('slug');
+            $slugPart = '/' === $oldSlug ? '' : $oldSlug;
+            if (0 !== strpos($slug, $slugPart.'/')) {
+                continue;
+            }
+            $newChildSlug = '/'.trim($newSlug.substr($slug, strlen($slugPart)), '/');
+            $child->setProperty('slug', $newChildSlug);
+            $this->slugUpdated($child, $slug, $newChildSlug);
         }
     }
 }

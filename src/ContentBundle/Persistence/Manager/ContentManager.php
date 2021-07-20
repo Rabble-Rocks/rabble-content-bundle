@@ -115,62 +115,71 @@ class ContentManager implements ContentManagerInterface
         $updated = [];
         $inserted = [];
         $removed = [];
-        foreach (array_merge($this->documents, $this->scheduledForRemoval) as $objectHash => $document) {
-            if (isset($this->scheduledForInsertion[$objectHash])) {
-                $this->eventDispatcher->dispatch($event = new InsertEvent($document));
-                if (!$event->isPrevented()) {
-                    $path = $this->pathProvider->provide($document);
+        do {
+            $dirtyObjects = 0;
+            foreach (array_merge($this->documents, $this->scheduledForRemoval) as $objectHash => $document) {
+                if (isset($this->scheduledForInsertion[$objectHash])) {
+                    $this->eventDispatcher->dispatch($event = new InsertEvent($document));
+                    if (!$event->isPrevented()) {
+                        $path = $this->pathProvider->provide($document);
 
-                    try {
-                        $existingNode = $this->session->getItem($path);
-                    } catch (RepositoryException $exception) {
-                        $existingNode = null;
+                        try {
+                            $existingNode = $this->session->getItem($path);
+                        } catch (RepositoryException $exception) {
+                            $existingNode = null;
+                        }
+                        if (null === $existingNode) {
+                            $node = $this->addNode($path);
+                            $document->setDocumentClass(get_class($document));
+                            $document->setDefaultLocale($this->locale);
+                            $this->documentHydrator->hydrateDocument($document, $node);
+                            $this->documentHydrator->hydrateNode($document, $node);
+                            $inserted[] = $document;
+                        }
                     }
-                    if (null === $existingNode) {
-                        $node = $this->addNode($path);
-                        $document->setDocumentClass(get_class($document));
-                        $document->setDefaultLocale($this->locale);
-                        $this->documentHydrator->hydrateDocument($document, $node);
-                        $this->documentHydrator->hydrateNode($document, $node);
-                        $inserted[] = $document;
-                    }
-                }
-
-                continue;
-            }
-            if (isset($this->scheduledForRemoval[$objectHash])) {
-                $this->eventDispatcher->dispatch($event = new RemoveEvent($document));
-                if (!$event->isPrevented()) {
-                    $this->session->removeItem($document->getPath());
-                    $removed[] = $document;
 
                     continue;
                 }
-                $this->addToIndex($document);
+                if (isset($this->scheduledForRemoval[$objectHash])) {
+                    $this->eventDispatcher->dispatch($event = new RemoveEvent($document));
+                    if (!$event->isPrevented()) {
+                        $this->session->removeItem($document->getPath());
+                        $removed[] = $document;
 
-                continue;
-            }
-            if ($document->isDirty()) {
-                $node = $this->session->getItem($document->getPath());
-                $oldDocument = $this->createProxy($node->getPropertyValue('rabble:class'), $node);
-                $this->eventDispatcher->dispatch($event = new UpdateEvent($document, $oldDocument->getProperties(), $document->getProperties()));
-                if ($event->isPrevented()) {
-                    $this->refresh($document);
+                        continue;
+                    }
+                    $this->addToIndex($document);
 
                     continue;
                 }
-                $this->documentHydrator->hydrateNode($document, $node);
-                $parentPath = PathHelper::getParentPath($this->pathProvider->provide($document));
-                $path = ('/' === $parentPath ? '' : $parentPath).'/'.$document->getNodeName();
-                if ($path !== $document->getPath()) {
-                    try {
-                        $this->move($document, $path);
-                    } catch (RepositoryException $exception) {
+                if ($document->isDirty()) {
+                    $node = $this->session->getItem($document->getPath());
+                    $oldDocument = $this->createProxy($node->getPropertyValue('rabble:class'), $node);
+                    $this->eventDispatcher->dispatch(
+                        $event = new UpdateEvent($document, $oldDocument->getProperties(), $document->getProperties())
+                    );
+                    if ($event->isPrevented()) {
+                        $this->refresh($document);
+
+                        continue;
                     }
+                    ++$dirtyObjects;
+                    $this->documentHydrator->hydrateNode($document, $node);
+                    $parentPath = PathHelper::getParentPath($this->pathProvider->provide($document));
+                    $path = ('/' === $parentPath ? '' : $parentPath).'/'.$document->getNodeName();
+                    if ($path !== $document->getPath()) {
+                        try {
+                            $this->move($document, $path);
+                        } catch (RepositoryException $exception) {
+                        }
+                    }
+                    $updated[] = $document;
+                    $dirty = (new \ReflectionObject($document))->getProperty('dirty');
+                    $dirty->setAccessible(true);
+                    $dirty->setValue($document, false);
                 }
-                $updated[] = $document;
             }
-        }
+        } while (0 < $dirtyObjects);
         $this->scheduledForInsertion = [];
         $this->scheduledForRemoval = [];
         if (count($updated) > 0 || count($inserted) > 0 || count($removed) > 0) {
