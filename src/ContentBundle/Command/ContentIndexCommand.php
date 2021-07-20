@@ -9,6 +9,7 @@ use Rabble\ContentBundle\ContentType\ContentTypeManagerInterface;
 use Rabble\ContentBundle\Persistence\Document\AbstractPersistenceDocument;
 use Rabble\ContentBundle\Persistence\Document\ContentDocument;
 use Rabble\ContentBundle\Persistence\Document\StructuredDocument;
+use Rabble\ContentBundle\Persistence\Document\StructuredDocumentInterface;
 use Rabble\ContentBundle\Persistence\Manager\ContentManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -68,6 +69,10 @@ class ContentIndexCommand extends Command
             $content = $this->contentManager->find($content->getPath());
             if ($content instanceof AbstractPersistenceDocument) {
                 $this->contentIndexer->index($content);
+            }
+            if ($content instanceof StructuredDocumentInterface) {
+                $node = $this->session->getNode($content->getPath());
+                $this->doIndex($node->getNodes());
             }
         }
     }
