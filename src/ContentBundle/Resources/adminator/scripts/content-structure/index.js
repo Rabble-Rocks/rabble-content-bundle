@@ -90,7 +90,10 @@ class ContentStructure extends Component {
             .then(res => res.text())
             .then(
                 (result) => {
-                    console.log(result);
+                    event.node.subtitle = result;
+                    this.setState({
+                        treeData: event.treeData
+                    });
                 },
                 () => {
                     this.setState({

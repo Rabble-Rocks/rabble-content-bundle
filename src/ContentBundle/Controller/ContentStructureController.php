@@ -76,7 +76,7 @@ class ContentStructureController extends AbstractController
         $item->setOrder($sortOrder);
         $this->contentManager->flush();
 
-        return new Response('ok');
+        return new Response($item->getProperty('slug'));
     }
 
     private function buildTreeData(StructuredDocument $document, bool $recursive = false): array

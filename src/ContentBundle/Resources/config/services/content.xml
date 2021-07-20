@@ -47,6 +47,7 @@
 
         <service id="Rabble\ContentBundle\Content\EventListener\ContentIndexSubscriber">
             <argument type="tagged_iterator" tag="rabble_content.indexer"/>
+            <argument type="service" id="rabble_content.persistence.content_manager"/>
             <tag name="kernel.event_subscriber" />
         </service>
 
@@ -86,6 +87,11 @@
             <argument type="service" id="rabble_content.persistence.path_provider"/>
         </service>
 
+        <service id="rabble_content.slug_provider" class="Rabble\ContentBundle\Content\Slug\SlugProvider">
+            <argument type="service" id="slugger"/>
+        </service>
+
+        <service id="Rabble\ContentBundle\Content\Slug\SlugProviderInterface" alias="rabble_content.slug_provider" />
         <service id="Rabble\ContentBundle\Persistence\Hydrator\DocumentHydratorInterface" alias="rabble_content.document_fields_provider" />
         <service id="Rabble\ContentBundle\Persistence\Hydrator\LocaleAwareDocumentHydratorInterface" alias="rabble_content.document_fields_provider" />
         <service id="Rabble\ContentBundle\Persistence\Hydrator\ChainedDocumentHydrator" alias="rabble_content.document_fields_provider" />

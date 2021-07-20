@@ -21,5 +21,9 @@
             <argument type="service" id="translator.default" />
             <tag>form.type</tag>
         </service>
+        <service id="Rabble\ContentBundle\Form\SlugType">
+            <argument type="service" id="rabble_content.slug_provider" />
+            <tag>form.type</tag>
+        </service>
     </services>
 </container>

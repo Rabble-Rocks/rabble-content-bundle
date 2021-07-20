@@ -19,6 +19,7 @@
             <tag name="controller.service_arguments"/>
         </service>
         <service id="rabble_content.action.slug_provider" class="%rabble_content.action.slug_provider.class%" autowire="true">
+            <argument type="service" id="rabble_content.slug_provider" />
             <argument type="service" id="slugger" />
             <argument type="service" id="rabble_content.persistence.content_manager" />
             <tag name="controller.service_arguments"/>

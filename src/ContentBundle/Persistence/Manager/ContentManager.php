@@ -153,10 +153,17 @@ class ContentManager implements ContentManagerInterface
                     continue;
                 }
                 if ($document->isDirty()) {
-                    $node = $this->session->getItem($document->getPath());
+                    $node = $this->session->getNodeByIdentifier($document->getUuid());
+                    $document->setPath($node->getPath());
                     $oldDocument = $this->createProxy($node->getPropertyValue('rabble:class'), $node);
+                    $properties = ['old' => $oldDocument->getProperties(), 'new' => $document->getProperties()];
+                    foreach ($document->getOwnProperties() as $property) {
+                        $getter = 'get'.ucfirst($property);
+                        $properties['old'][$property] = $oldDocument->{$getter}();
+                        $properties['new'][$property] = $document->{$getter}();
+                    }
                     $this->eventDispatcher->dispatch(
-                        $event = new UpdateEvent($document, $oldDocument->getProperties(), $document->getProperties())
+                        $event = new UpdateEvent($document, $properties['old'], $properties['new'])
                     );
                     if ($event->isPrevented()) {
                         $this->refresh($document);

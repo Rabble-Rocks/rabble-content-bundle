@@ -2,7 +2,7 @@
 
 namespace Rabble\ContentBundle\Controller\Action;
 
-use Rabble\ContentBundle\Persistence\Document\AbstractPersistenceDocument;
+use Rabble\ContentBundle\Content\Slug\SlugProviderInterface;
 use Rabble\ContentBundle\Persistence\Manager\ContentManager;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,13 +11,16 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 
 class SlugProviderAction
 {
-    private SluggerInterface $slugger;
     private ContentManager $contentManager;
+    private SluggerInterface $slugger;
+    private SlugProviderInterface $slugProvider;
 
     public function __construct(
+        SlugProviderInterface $slugProvider,
         SluggerInterface $slugger,
         ContentManager $contentManager
     ) {
+        $this->slugProvider = $slugProvider;
         $this->slugger = $slugger;
         $this->contentManager = $contentManager;
     }
@@ -27,27 +30,18 @@ class SlugProviderAction
         $content = (string) $request->query->get('content');
         $title = $request->query->get('title');
         $content = $this->contentManager->find($content);
-        if (null === $content && null === $title) {
+        if (null === $content && !is_string($title)) {
             throw new NotFoundHttpException();
         }
-        $slug = '/';
-        $slugNodes = [];
-        if ($content instanceof AbstractPersistenceDocument) {
-            if (!$content->hasProperty('slug')) {
-                return new JsonResponse(['value' => $slug]);
-            }
-            $contentSlug = $content->getProperty('slug');
-            if ('/' !== $contentSlug) {
-                $slugNodes[] = substr($contentSlug, 1);
-            }
+
+        if (null === $content) {
+            return new JsonResponse([
+                'value' => '/'.$this->slugger->slug(strtolower($title)),
+            ]);
         }
-        if (is_string($title)) {
-            $slugNodes[] = $this->slugger->slug($title);
-        }
-        $slug .= strtolower(implode('/', $slugNodes));
 
         return new JsonResponse([
-            'value' => $slug,
+            'value' => $this->slugProvider->provide($content, $title),
         ]);
     }
 }
