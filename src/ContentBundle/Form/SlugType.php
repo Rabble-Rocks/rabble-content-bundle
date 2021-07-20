@@ -38,11 +38,12 @@ class SlugType extends AbstractType
             while (null !== $form && !$form->getData() instanceof AbstractPersistenceDocument) {
                 $form = $form->getParent();
             }
-            /** @var AbstractPersistenceDocument $document */
             $document = $form->getData();
+            if (!$document instanceof AbstractPersistenceDocument) {
+                return;
+            }
             if (
                 !$document instanceof ContentDocument
-                || null !== $document->getUuid()
                 || !$form->has('title')
                 || null === $form->get('title')->getData()
                 || !$document->getParent() instanceof AbstractPersistenceDocument
