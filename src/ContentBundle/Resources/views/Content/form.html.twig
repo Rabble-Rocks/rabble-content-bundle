@@ -35,34 +35,6 @@
             {% endif %}
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-{{ (fields['publishing']|default([])|length > 0 ? 8 : 12) }}">
-            {{ rabble_admin_ui(formPanel) }}
-        </div>
-        {% if fields['publishing']|default([])|length > 0 %}
-            <div id="publishing" class="col-md-4">
-                <div class="card border-primary">
-                    <a class="" href="#" data-toggle="collapse" data-target="#publishingCard">
-                        <div class="card-header bg-primary">
-                            <h5 class="mb-0 text-white">
-                                Publishing
-                            </h5>
-                        </div>
-                    </a>
-
-                    <div id="publishingCard" class="collapse show" data-parent="#publishing">
-                        <div class="card-body">
-                            {% for field in form.children|merge(form.properties.children) %}
-                                {% if 'publishing' is same as(field.vars.component|default) %}
-                                    {{ form_row(field) }}
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-
-    </div>
+    {{ rabble_admin_ui(gridRow) }}
     {{ form_end(form) }}
 {% endblock %}
