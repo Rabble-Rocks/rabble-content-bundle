@@ -50,6 +50,7 @@ class ContentStructureController extends AbstractController
         if (!$parent instanceof ContentDocument) {
             throw new NotFoundHttpException();
         }
+
         return new JsonResponse($this->buildTreeData($parent, 0, 0));
     }
 

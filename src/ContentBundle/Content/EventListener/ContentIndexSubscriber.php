@@ -2,7 +2,6 @@
 
 namespace Rabble\ContentBundle\Content\EventListener;
 
-use PHPCR\Util\PathHelper;
 use Rabble\ContentBundle\Content\ContentIndexer;
 use Rabble\ContentBundle\Persistence\Document\AbstractPersistenceDocument;
 use Rabble\ContentBundle\Persistence\Document\StructuredDocumentInterface;
