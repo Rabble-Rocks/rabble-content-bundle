@@ -67,7 +67,7 @@ abstract class AbstractPersistenceDocument
 
     public function setNodeName(string $nodeName): void
     {
-        $this->dirty = $this->dirty || !isset($this->nodeName) || $nodeName !== $this->path;
+        $this->dirty = $this->dirty || !isset($this->nodeName) || $nodeName !== $this->nodeName;
         $this->nodeName = $nodeName;
     }
 
