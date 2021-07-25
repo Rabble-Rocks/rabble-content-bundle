@@ -16,7 +16,6 @@
 
         <service id="rabble_content.persistence.structured_content_hydrator" class="Rabble\ContentBundle\Persistence\Hydrator\StructuredContentHydrator">
             <argument type="service" id="rabble_content.persistence.content_manager" />
-            <argument type="service" id="doctrine_phpcr.session" />
             <tag name="rabble_content.document_hydrator" />
         </service>
     </services>

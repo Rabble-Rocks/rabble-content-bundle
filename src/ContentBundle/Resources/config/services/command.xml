@@ -4,8 +4,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <service id="Rabble\ContentBundle\Command\ContentIndexCommand">
-            <argument type="service" id="rabble_content.content_type_manager" />
-            <argument type="service" id="doctrine_phpcr.session" />
+            <argument type="service" id="doctrine_phpcr.default_session" />
             <argument type="service" id="Rabble\ContentBundle\Persistence\Manager\ContentManager" />
             <argument type="service" id="rabble_content.content_indexer" />
             <argument>%kernel.default_locale%</argument>

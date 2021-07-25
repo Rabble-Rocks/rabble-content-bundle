@@ -6,5 +6,4 @@ use Rabble\AdminBundle\Ui\Event\AbstractSimpleUiEvent;
 
 class ContentUiEvent extends AbstractSimpleUiEvent
 {
-
 }

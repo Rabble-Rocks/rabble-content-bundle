@@ -3,7 +3,6 @@
 namespace Rabble\ContentBundle\Content\Translator;
 
 use Jackalope\Node;
-use Jackalope\Session;
 use Rabble\ContentBundle\ContentBlock\ContentBlockManagerInterface;
 use Rabble\ContentBundle\DocumentFieldsProvider\DocumentFieldsProviderInterface;
 use Rabble\ContentBundle\FieldType\ContentBlockType;
@@ -14,22 +13,18 @@ use Rabble\FieldTypeBundle\FieldType\FieldContainerInterface;
 class ContentTranslator implements ContentTranslatorInterface
 {
     protected ContentBlockManagerInterface $contentBlockManager;
-    protected Session $session;
     protected DocumentFieldsProviderInterface $fieldsProvider;
 
     public function __construct(
         ContentBlockManagerInterface $contentBlockManager,
-        Session $session,
         DocumentFieldsProviderInterface $fieldsProvider
     ) {
         $this->contentBlockManager = $contentBlockManager;
-        $this->session = $session;
         $this->fieldsProvider = $fieldsProvider;
     }
 
-    public function translate(AbstractPersistenceDocument $document, string $locale): void
+    public function translate(AbstractPersistenceDocument $document, string $locale, Node $node): void
     {
-        $node = $this->session->getNode($document->getPath());
         $fields = $this->fieldsProvider->getFields($document);
         $data = [];
         foreach ($fields as $field) {
@@ -52,9 +47,8 @@ class ContentTranslator implements ContentTranslatorInterface
         $document->setProperties($data);
     }
 
-    public function setNodeData(AbstractPersistenceDocument $document, string $locale): void
+    public function setNodeData(AbstractPersistenceDocument $document, string $locale, Node $node): void
     {
-        $node = $this->session->getNode($document->getPath());
         $data = $document->getProperties();
         foreach ($document->getOwnProperties() as $property) {
             $getter = 'get'.ucfirst($property);

@@ -142,6 +142,7 @@ class ContentController extends AbstractController
                 ]),
             ],
         ])));
+
         return $event->getPane();
     }
 }

@@ -3,7 +3,6 @@
 namespace Rabble\ContentBundle\Persistence\Hydrator;
 
 use Jackalope\Node;
-use Jackalope\Session;
 use Rabble\ContentBundle\Persistence\Document\AbstractPersistenceDocument;
 use Rabble\ContentBundle\Persistence\Document\StructuredDocumentInterface;
 use Rabble\ContentBundle\Persistence\Manager\ContentManager;
@@ -11,12 +10,10 @@ use Rabble\ContentBundle\Persistence\Manager\ContentManager;
 class StructuredContentHydrator implements DocumentHydratorInterface
 {
     private ContentManager $contentManager;
-    private Session $session;
 
-    public function __construct(ContentManager $contentManager, Session $session)
+    public function __construct(ContentManager $contentManager)
     {
         $this->contentManager = $contentManager;
-        $this->session = $session;
     }
 
     public function hydrateDocument(AbstractPersistenceDocument $document, Node $node): void
@@ -73,6 +70,7 @@ class StructuredContentHydrator implements DocumentHydratorInterface
         if (null === $parent) {
             return;
         }
+        $session = $this->contentManager->getSession();
         $oldDocument = clone $document;
         $this->contentManager->refresh($oldDocument);
         $oldParent = $oldDocument->getParent();
@@ -85,7 +83,7 @@ class StructuredContentHydrator implements DocumentHydratorInterface
             }
             $children = array_values($children);
             foreach ($children as $i => $child) {
-                $node = $this->session->getNode($child->getPath());
+                $node = $session->getNode($child->getPath());
                 $node->setProperty('rabble:order', $i);
             }
         }
@@ -102,7 +100,7 @@ class StructuredContentHydrator implements DocumentHydratorInterface
             array_splice($children, $document->getOrder(), 0, [$document]);
             $children = array_values($children);
             foreach ($children as $i => $child) {
-                $node = $this->session->getNode($child->getPath());
+                $node = $session->getNode($child->getPath());
                 $node->setProperty('rabble:order', $i);
             }
         }

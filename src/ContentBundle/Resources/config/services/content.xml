@@ -41,7 +41,6 @@
 
         <service id="Rabble\ContentBundle\Content\Translator\ContentTranslator">
             <argument type="service" id="rabble_content.content_block_manager"/>
-            <argument type="service" id="doctrine_phpcr.session"/>
             <argument type="service" id="rabble_content.document_fields_provider" />
         </service>
 
@@ -53,9 +52,11 @@
 
         <service id="Rabble\ContentBundle\Content\EventListener\ContentImageSubscriber">
             <argument type="service" id="rabble_content.document_fields_provider"/>
+            <argument type="service" id="rabble_content.persistence.content_manager"/>
             <argument type="service" id="rabble_content.content_block_manager"/>
             <argument type="service" id="rabble_field_type.vich_uploader.property_mapping_factory"/>
             <argument type="service" id="vich_uploader.storage"/>
+            <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_subscriber" />
         </service>
 

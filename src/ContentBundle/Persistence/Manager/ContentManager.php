@@ -121,10 +121,12 @@ class ContentManager implements ContentManagerInterface
                 if (isset($this->scheduledForInsertion[$objectHash])) {
                     $this->eventDispatcher->dispatch($event = new InsertEvent($document));
                     if (!$event->isPrevented()) {
-                        $path = $this->pathProvider->provide($document);
+                        $path = $document->getPath() ?? $this->pathProvider->provide($document);
+                        $document->setNodeName(PathHelper::getNodeName($path));
 
                         try {
                             $existingNode = $this->session->getItem($path);
+                            $this->documentHydrator->hydrateDocument($document, $existingNode);
                         } catch (RepositoryException $exception) {
                             $existingNode = null;
                         }
@@ -172,14 +174,6 @@ class ContentManager implements ContentManagerInterface
                     }
                     ++$dirtyObjects;
                     $this->documentHydrator->hydrateNode($document, $node);
-                    $parentPath = PathHelper::getParentPath($this->pathProvider->provide($document));
-                    $path = ('/' === $parentPath ? '' : $parentPath).'/'.$document->getNodeName();
-                    if ($path !== $document->getPath()) {
-                        try {
-                            $this->move($document, $path);
-                        } catch (RepositoryException $exception) {
-                        }
-                    }
                     $updated[] = $document;
                     $dirty = (new \ReflectionObject($document))->getProperty('dirty');
                     $dirty->setAccessible(true);
@@ -236,6 +230,11 @@ class ContentManager implements ContentManagerInterface
         $this->session->move($document->getPath(), $targetPath.$suffix);
         $document->setNodeName(PathHelper::getNodeName($targetPath.$suffix));
         $document->setPath($targetPath.$suffix);
+    }
+
+    public function getSession(): Session
+    {
+        return $this->session;
     }
 
     protected function addNode(string $path): Node

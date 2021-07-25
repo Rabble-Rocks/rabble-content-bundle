@@ -22,13 +22,13 @@ class ContentDocumentHydrator implements LocaleAwareDocumentHydratorInterface
     public function hydrateDocument(AbstractPersistenceDocument $document, Node $node): void
     {
         if (Node::STATE_NEW !== $node->getState()) {
-            $this->contentTranslator->translate($document, $this->locale);
+            $this->contentTranslator->translate($document, $this->locale, $node);
         }
     }
 
     public function hydrateNode(AbstractPersistenceDocument $document, Node $node): void
     {
-        $this->contentTranslator->setNodeData($document, $this->locale);
+        $this->contentTranslator->setNodeData($document, $this->locale, $node);
     }
 
     public function setLocale(string $locale)

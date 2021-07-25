@@ -38,7 +38,7 @@ class ContentIndexSubscriber implements EventSubscriberInterface
         $old = $event->getOldProperties();
         $new = $event->getNewProperties();
         $document = $event->getDocument();
-        if (!$document instanceof StructuredDocumentInterface) {
+        if (!$document instanceof StructuredDocumentInterface || true === $document->getProperty('isPreview')) {
             return;
         }
         if (isset($old['slug'], $new['slug']) && $old['slug'] !== $new['slug']) {
@@ -61,13 +61,13 @@ class ContentIndexSubscriber implements EventSubscriberInterface
         foreach ($this->indexers as $indexer) {
             $indexed = false;
             foreach ($event->getInserted() as $document) {
-                if ($indexer->supports($document)) {
+                if ($indexer->supports($document) && $this->contentManager->contains($document)) {
                     $indexer->index($document);
                     $indexed = true;
                 }
             }
             foreach ($event->getUpdated() as $document) {
-                if ($indexer->supports($document)) {
+                if ($indexer->supports($document) && $this->contentManager->contains($document)) {
                     $indexer->update($document);
                     $indexed = true;
                 }

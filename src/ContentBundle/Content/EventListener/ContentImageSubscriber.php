@@ -4,14 +4,18 @@ namespace Rabble\ContentBundle\Content\EventListener;
 
 use Rabble\ContentBundle\ContentBlock\ContentBlockManagerInterface;
 use Rabble\ContentBundle\DocumentFieldsProvider\DocumentFieldsProviderInterface;
+use Rabble\ContentBundle\Event\ContentImageEvent;
 use Rabble\ContentBundle\FieldType\ContentBlockType;
+use Rabble\ContentBundle\Persistence\Document\AbstractPersistenceDocument;
 use Rabble\ContentBundle\Persistence\Event\RemoveEvent;
 use Rabble\ContentBundle\Persistence\Event\UpdateEvent;
+use Rabble\ContentBundle\Persistence\Manager\ContentManagerInterface;
 use Rabble\FieldTypeBundle\FieldType\AbstractFieldType;
 use Rabble\FieldTypeBundle\FieldType\FieldContainerInterface;
 use Rabble\FieldTypeBundle\FieldType\ImageType;
 use Rabble\FieldTypeBundle\Model\FileValue;
 use Rabble\FieldTypeBundle\VichUploader\PropertyMappingFactory;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Vich\UploaderBundle\Storage\StorageInterface;
 
@@ -21,23 +25,29 @@ use Vich\UploaderBundle\Storage\StorageInterface;
 class ContentImageSubscriber implements EventSubscriberInterface
 {
     private DocumentFieldsProviderInterface $fieldsProvider;
+    private ContentManagerInterface $contentManager;
     private ContentBlockManagerInterface $contentBlockManager;
     private PropertyMappingFactory $propertyMappingFactory;
-    private StorageInterface $storage;
 
+    private StorageInterface $storage;
     private array $imagesToRemove = [];
     private array $imagesToKeep = [];
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         DocumentFieldsProviderInterface $fieldsProvider,
+        ContentManagerInterface $contentManager,
         ContentBlockManagerInterface $contentBlockManager,
         PropertyMappingFactory $propertyMappingFactory,
-        StorageInterface $storage
+        StorageInterface $storage,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->fieldsProvider = $fieldsProvider;
+        $this->contentManager = $contentManager;
         $this->contentBlockManager = $contentBlockManager;
         $this->propertyMappingFactory = $propertyMappingFactory;
         $this->storage = $storage;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -62,7 +72,7 @@ class ContentImageSubscriber implements EventSubscriberInterface
         $new = $event->getNewProperties();
         foreach ($fields as $field) {
             if ($field instanceof AbstractFieldType) {
-                $this->removeImagesFromField($field, $old, $new);
+                $this->removeImagesFromField($field, $old, $new, $document);
             }
         }
         $this->doRemove();
@@ -77,7 +87,7 @@ class ContentImageSubscriber implements EventSubscriberInterface
         $fields = $this->fieldsProvider->getFields($document);
         foreach ($fields as $field) {
             if ($field instanceof AbstractFieldType) {
-                $this->removeImagesFromField($field, $document->getProperties(), []);
+                $this->removeImagesFromField($field, $document->getProperties(), [], $document);
             }
         }
         $this->doRemove();
@@ -91,14 +101,18 @@ class ContentImageSubscriber implements EventSubscriberInterface
      */
     private function doRemove(): void
     {
-        foreach (array_diff_key($this->imagesToRemove, $this->imagesToKeep) as $file => $mapping) {
-            $this->storage->remove(new FileValue($file), $mapping);
+        foreach (array_diff_key($this->imagesToRemove, $this->imagesToKeep) as $file => $data) {
+            $object = new FileValue($file);
+            $this->eventDispatcher->dispatch($event = new ContentImageEvent($object, $data['mapping'], $data['document']));
+            if (!$event->isCanceled()) {
+                $this->storage->remove(new FileValue($file), $data['mapping']);
+            }
         }
         $this->imagesToRemove = [];
         $this->imagesToKeep = [];
     }
 
-    private function removeImagesFromField(AbstractFieldType $field, array $old, array $new): void
+    private function removeImagesFromField(AbstractFieldType $field, array $old, array $new, AbstractPersistenceDocument $document): void
     {
         if ($field instanceof ImageType) {
             if (isset($new[$field->getName()])) {
@@ -107,7 +121,7 @@ class ContentImageSubscriber implements EventSubscriberInterface
             if (isset($old[$field->getName()]) && (!isset($new[$field->getName()]) || $old[$field->getName()] !== $new[$field->getName()])) {
                 $file = $old[$field->getName()];
                 $mapping = $this->propertyMappingFactory->fromMappingName($field->getOption('mapping'));
-                $this->imagesToRemove[$file] = $mapping;
+                $this->imagesToRemove[$file] = ['mapping' => $mapping, 'document' => $document];
             }
         }
         if ($field instanceof FieldContainerInterface) {
@@ -119,7 +133,7 @@ class ContentImageSubscriber implements EventSubscriberInterface
                 foreach ($iterator ?? [] as $i => $item) {
                     $subOld = $old[$field->getName()][$i] ?? [];
                     $subNew = $new[$field->getName()][$i] ?? [];
-                    $this->removeImagesFromField($subField, $subOld, $subNew);
+                    $this->removeImagesFromField($subField, $subOld, $subNew, $document);
                 }
             }
         }
@@ -136,7 +150,7 @@ class ContentImageSubscriber implements EventSubscriberInterface
                 foreach ($block->getFields() as $subField) {
                     $subOld = $old[$field->getName()][$i] ?? [];
                     $subNew = $new[$field->getName()][$i] ?? [];
-                    $this->removeImagesFromField($subField, $subOld, $subNew);
+                    $this->removeImagesFromField($subField, $subOld, $subNew, $document);
                 }
             }
         }

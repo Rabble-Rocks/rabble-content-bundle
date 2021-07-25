@@ -2,6 +2,7 @@
 
 namespace Rabble\ContentBundle\Persistence\Manager;
 
+use Jackalope\Session;
 use Rabble\ContentBundle\Persistence\Document\AbstractPersistenceDocument;
 use Symfony\Contracts\Translation\LocaleAwareInterface;
 
@@ -20,4 +21,6 @@ interface ContentManagerInterface extends LocaleAwareInterface
     public function move(AbstractPersistenceDocument $document, $targetPath): void;
 
     public function flush(): void;
+
+    public function getSession(): Session;
 }

@@ -5,7 +5,6 @@ namespace Rabble\ContentBundle\Command;
 use Jackalope\Node;
 use Jackalope\Session;
 use Rabble\ContentBundle\Content\ContentIndexer;
-use Rabble\ContentBundle\ContentType\ContentTypeManagerInterface;
 use Rabble\ContentBundle\Persistence\Document\AbstractPersistenceDocument;
 use Rabble\ContentBundle\Persistence\Document\ContentDocument;
 use Rabble\ContentBundle\Persistence\Document\StructuredDocument;
@@ -21,20 +20,17 @@ class ContentIndexCommand extends Command
 {
     protected static $defaultName = 'rabble:content:index';
 
-    private ContentTypeManagerInterface $contentTypeManager;
     private Session $session;
     private ContentManager $contentManager;
     private ContentIndexer $contentIndexer;
     private string $defaultLocale;
 
     public function __construct(
-        ContentTypeManagerInterface $contentTypeManager,
         Session $session,
         ContentManager $contentManager,
         ContentIndexer $contentIndexer,
         string $defaultLocale
     ) {
-        $this->contentTypeManager = $contentTypeManager;
         $this->session = $session;
         $this->contentManager = $contentManager;
         $this->contentIndexer = $contentIndexer;
@@ -55,8 +51,12 @@ class ContentIndexCommand extends Command
         if ($input->getOption('full-reset')) {
             $this->contentIndexer->reset();
         }
-        $this->doIndex($this->session->getNode(ContentDocument::ROOT_NODE)->getNodes());
-        $this->doIndex($this->session->getNode(StructuredDocument::ROOT_NODE)->getNodes());
+        if ($this->session->nodeExists(ContentDocument::ROOT_NODE)) {
+            $this->doIndex($this->session->getNode(ContentDocument::ROOT_NODE)->getNodes());
+        }
+        if ($this->session->nodeExists(StructuredDocument::ROOT_NODE)) {
+            $this->doIndex($this->session->getNode(StructuredDocument::ROOT_NODE)->getNodes());
+        }
         $this->contentIndexer->commit();
 
         return 0;
