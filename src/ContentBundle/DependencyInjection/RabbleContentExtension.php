@@ -32,6 +32,8 @@ class RabbleContentExtension extends Extension
         $loader = new XmlFileLoader($container, new FileLocator(\dirname(__DIR__).'/Resources/config'));
         $loader->load('services.xml');
 
+        $container->setParameter('rabble_content.index_prefix', $config['index_prefix']);
+
         $this->registerContentTypeConfigurator($container);
         $this->registerContentBlockConfigurator($container);
         $this->registerContentTypeManager($config, $container);

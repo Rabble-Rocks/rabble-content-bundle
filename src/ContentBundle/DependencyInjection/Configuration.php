@@ -13,6 +13,7 @@ class Configuration implements ConfigurationInterface
         $root = $builder->getRootNode();
         $root
             ->children()
+            ->scalarNode('index_prefix')->defaultValue('')->end()
             ->arrayNode('content_types')
             ->arrayPrototype()
             ->children()

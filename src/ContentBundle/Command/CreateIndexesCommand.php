@@ -29,13 +29,12 @@ class CreateIndexesCommand extends Command
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $application = clone $this->getApplication();
-        $application->setAutoExit(false);
         /** @var IndexService $index */
         foreach ($this->indexes as $index) {
             $commandInput = new ArrayInput([
                 'command' => 'ongr:es:index:create',
                 '--if-not-exists' => true,
-                '-i' => $index->getIndexName(),
+                '-i' => $index->getIndexSettings()->getAlias(),
             ]);
             $application->run($commandInput, $output);
         }

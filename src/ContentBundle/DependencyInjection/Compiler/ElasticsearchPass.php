@@ -67,7 +67,7 @@ class ElasticsearchPass implements CompilerPassInterface
                     IndexSettings::class,
                     [
                         $documentClass,
-                        $indexAlias,
+                        $container->getParameter('rabble_content.index_prefix').$indexAlias,
                         $indexAlias,
                         $indexMetadata,
                         $indexesOverride[$documentClass]['hosts'] ?? $document->hosts,
